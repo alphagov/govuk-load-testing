@@ -26,23 +26,27 @@ Set up
 How to run a test plan
 ----------------------
 
-We use Java properties to pass options to the script which we don't want to hard-code:
+We use Java properties to pass options to the script which we don't want to hard-code.  These can be set using the `JAVA_OPTS` environment variable:
 
-- `dataDir` is the directory to look in for data files (optional, defaults to "test-data")
-- `baseUrl` is prepended to all requests, at the least it should include the scheme and domain name
-- `username` is the HTTP basic auth username
-- `password` is the HTTP basic auth password
-- `rateLimitToken` is the value of the `Rate-Limit-Token` header (optional, defaults to unset)
-- `workers` is the number of threads making requests (optional, defaults to 1)
-- `ramp` is the duration, in seconds, over which the workers are started (optional, defaults to 0)
-- `bust` is whether to pass a unique cache-busting string with every request or not (optional, defaults to false)
-- `factor` is the multiplier to apply to the amount of desired traffic (optional, defaults to 1)
+```
+> export JAVA_OPTS="-Dkey1=value1 -Dkey2=value2 ..."
+```
+
+The following properties are required:
+
+- `baseUrl`, prepended to all requests, at the least it should include the scheme and domain name
+- `username`, the HTTP basic auth username
+- `password`, the HTTP basic auth password
+
+The following properties are optional:
+
+- `dataDir` (default: "test-data"), the directory to look in for test data files
+- `rateLimitToken` (default: no header sent), the value of the `Rate-Limit-Token` header
+- `workers` (default: 1), the number of threads making requests
+- `ramp` (default: 0), the duration, in seconds, over which the workers are started
+- `bust` (default: false), whether to pass a unique cache-busting string with every request or not
 
 These properties can be set using the `JAVA_OPTS` environment variable:
-
-```
-> export JAVA_OPTS="-DbaseUrl=https://... -Dusername=... -Dpassword=... -DrateLimitToken=..."
-```
 
 ###  On a single machine
 
@@ -79,6 +83,8 @@ Tets plans live in the `test-plans` directory.  Their data files live in the `te
 ### govuk.Frontend
 
 **Data files:** paths.csv
+
+**Properties:** `factor` (default: 1), the multiplier to apply to the amount of desired traffic
 
 For an entry `base_path,hits`, each worker requests `base_path` `ceil(hits * factor / workers)` times, with no delay between requests.  Each worker proceeds through the csv in order.
 

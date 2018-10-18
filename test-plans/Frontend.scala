@@ -2,60 +2,24 @@ package govuk
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import scala.concurrent.duration._
-import scala.util.Random
 
 class Frontend extends Simulation {
-  val dataDir = sys.props.getOrElse("dataDir", "test-data")
-  val baseUrl = sys.props.get("baseUrl").get
-  val username = sys.props.get("username").get
-  val password = sys.props.get("password").get
-  val rateLimitToken = sys.props.get("rateLimitToken")
-  val workers = sys.props.getOrElse("workers", "1").toInt
-  val ramp = sys.props.getOrElse("ramp", "0").toInt
-  val bust = sys.props.getOrElse("bust", "false").toBoolean
   val factor = sys.props.getOrElse("factor", "1").toFloat
-
-  val cachebuster = Iterator.continually(
-    Map("cachebust" -> (Random.alphanumeric.take(50).mkString)))
-
-  val extraHeaders = Map(
-    "Rate-Limit-Token" -> rateLimitToken
-  ).collect {
-    case (key, Some(value)) => key -> value
-  }
-
-  val httpProtocol = http
-    .baseUrl(baseUrl)
-    .acceptHeader("text/html")
-    .acceptEncodingHeader("gzip, deflate")
-    .basicAuth(username, password)
-    .headers(extraHeaders)
-    .disableCaching
 
   val paths = csv(dataDir + java.io.File.separatorChar + "paths.csv").readRecords
 
   val scale = factor / workers
 
-  val frontend = scenario("Frontend")
-    .feed(cachebuster)
-    .foreach(paths, "path") {
-      exec(flattenMapIntoAttributes("${path}"))
-        .repeat(session => math.ceil(session("hits").as[Int] * scale).toInt,
-                "hit") {
-          val cachebust = "?cachebust=${cachebust}-${hit}"
-          exec(
-            http("${base_path}")
-              .get("${base_path}" + (if (bust) cachebust else ""))
-              .check(
-                status.in(200 to 299),
-                regex("govuk:rendering-application").count.is(1),
-                regex("govuk:content-id").count.is(1)
-              ))
-        }
-    }
+  val scn =
+    scenario("Frontend")
+      .feed(cachebuster)
+      .foreach(paths, "path") {
+        exec(flattenMapIntoAttributes("${path}"))
+          .repeat(session => math.ceil(session("hits").as[Int] * scale).toInt,
+                  "hit") {
+            exec(get("${base_path}", "${cachebust}-${hit}"))
+          }
+      }
 
-  setUp(
-    frontend.inject(rampUsers(workers) during (ramp seconds))
-  ).protocols(httpProtocol)
+  run(scn)
 }
