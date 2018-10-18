@@ -5,12 +5,12 @@ import io.gatling.http.Predef._
 import scala.concurrent.duration._
 
 class Frontend extends Simulation {
-  val baseUrl = System.getProperty("baseurl")
-  val username = System.getProperty("username")
-  val password = System.getProperty("password")
-  val rateLimitToken = System.getProperty("ratelimittoken")
-  val users = Integer.getInteger("users", 1)
-  val ramp = Integer.getInteger("ramp", 0)
+  val baseUrl = sys.props.get("baseurl").get
+  val username = sys.props.get("username").get
+  val password = sys.props.get("password").get
+  val rateLimitToken = sys.props.get("ratelimittoken").get
+  val users = sys.props.getOrElse("users", "1").toInt
+  val ramp = sys.props.getOrElse("ramp", "0").toInt
 
   val extraHeaders = Map(
     "Rate-Limit-Token" -> rateLimitToken
