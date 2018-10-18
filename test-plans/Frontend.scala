@@ -14,7 +14,8 @@ class Frontend extends Simulation {
   val ramp = sys.props.getOrElse("ramp", "0").toInt
   val bust = sys.props.getOrElse("bust", "false").toBoolean
 
-  val cachebuster = Iterator.continually(Map("cachebust" -> (Random.alphanumeric.take(50).mkString)))
+  val cachebuster = Iterator.continually(
+    Map("cachebust" -> (Random.alphanumeric.take(50).mkString)))
 
   val extraHeaders = Map(
     "Rate-Limit-Token" -> rateLimitToken
@@ -31,14 +32,14 @@ class Frontend extends Simulation {
 
   val frontend = scenario("Frontend")
     .feed(cachebuster)
-    .exec(http("homepage")
-      .get(if (bust) "/?cachebust=${cachebust}" else "/")
-      .check(
-        status.in(200 to 299),
-        regex("govuk:rendering-application").count.is(1),
-        regex("govuk:content-id").count.is(1)
-      )
-    )
+    .exec(
+      http("homepage")
+        .get(if (bust) "/?cachebust=${cachebust}" else "/")
+        .check(
+          status.in(200 to 299),
+          regex("govuk:rendering-application").count.is(1),
+          regex("govuk:content-id").count.is(1)
+        ))
 
   setUp(
     frontend.inject(rampUsers(users) during (ramp seconds))
