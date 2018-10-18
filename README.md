@@ -23,6 +23,7 @@ How to run a test plan on your machine
 
 We use Java properties to pass options to the script which we don't want to hard-code:
 
+- `dataDir` is the directory to look in for data files (optional, defaults to "test-data")
 - `baseUrl` is prepended to all requests, at the least it should include the scheme and domain name
 - `username` is the HTTP basic auth username
 - `password` is the HTTP basic auth password
@@ -40,6 +41,7 @@ These properties can be set using the `JAVA_OPTS` environment variable:
 Gatling provides a wrapper script to compile and launch test plans in its `user-files` directory:
 
 ```
+> cd test-data
 > $GATLING_HOME/bin/gatling.sh
 GATLING_HOME is set to /Users/michaelswalker/Downloads/gatling-charts-highcharts-bundle-3.0.0-RC4
 Choose a simulation number:
@@ -61,3 +63,13 @@ How to run a test plan across multiple machines
 to do
 
 https://gatling.io/docs/3.0/cookbook/scaling_out/
+
+
+Test plans
+----------
+
+### govuk.Frontend
+
+**Data files:** paths.csv
+
+Each worker requests every path in the csv file in order, with no delay between requests.

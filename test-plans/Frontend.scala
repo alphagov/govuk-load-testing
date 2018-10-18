@@ -6,6 +6,7 @@ import scala.concurrent.duration._
 import scala.util.Random
 
 class Frontend extends Simulation {
+  val dataDir = sys.props.getOrElse("dataDir", "test-data")
   val baseUrl = sys.props.get("baseUrl").get
   val username = sys.props.get("username").get
   val password = sys.props.get("password").get
@@ -30,16 +31,21 @@ class Frontend extends Simulation {
     .basicAuth(username, password)
     .headers(extraHeaders)
 
+  val paths = csv(dataDir + java.io.File.separatorChar + "paths.csv").readRecords
+
   val frontend = scenario("Frontend")
     .feed(cachebuster)
-    .exec(
-      http("homepage")
-        .get(if (bust) "/?cachebust=${cachebust}" else "/")
-        .check(
-          status.in(200 to 299),
-          regex("govuk:rendering-application").count.is(1),
-          regex("govuk:content-id").count.is(1)
-        ))
+    .foreach(paths, "path") {
+      exec(flattenMapIntoAttributes("${path}"))
+        .exec(
+          http("${base_path}")
+            .get("${base_path}" + (if (bust) "?cachebust=${cachebust}" else ""))
+            .check(
+              status.in(200 to 299),
+              regex("govuk:rendering-application").count.is(1),
+              regex("govuk:content-id").count.is(1)
+            ))
+    }
 
   setUp(
     frontend.inject(rampUsers(users) during (ramp seconds))
