@@ -3,7 +3,6 @@ GOV.UK Load Testing
 
 Test plans for load testing GOV.UK frontend apps using [Gatling](https://gatling.io/).
 
-
 In this README, `$GATLING_HOME` is the directory where Gatling is installed to.
 
 For example, if you download version 3.0.0-RC4 of the Gatling bundle zip and extract it in your `~/Downloads` folder, `$GATLING_HOME` is `~/Downloads/gatling-charts-highcharts-bundle-3.0.0-RC4`
