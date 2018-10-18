@@ -1,7 +1,7 @@
-base_path
-/
-/jobsearch
-/vehicle-tax
-/student-finance-register-login
-/book-theory-test
-/personal-tax-account
+base_path,hits
+/,100
+/jobsearch,25
+/vehicle-tax,25
+/student-finance-register-login,25
+/book-theory-test,25
+/personal-tax-account,25

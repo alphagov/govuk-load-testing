@@ -79,7 +79,7 @@ Tets plans live in the `test-plans` directory.  Their data files live in the `te
 
 **Data files:** paths.csv
 
-Each worker requests every path in the csv file in order, with no delay between requests.
+Each worker requests every path in the csv file as many times as specified, in order, with no delay between requests.
 
 
 Troubleshooting

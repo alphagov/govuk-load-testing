@@ -38,14 +38,17 @@ class Frontend extends Simulation {
     .feed(cachebuster)
     .foreach(paths, "path") {
       exec(flattenMapIntoAttributes("${path}"))
-        .exec(
-          http("${base_path}")
-            .get("${base_path}" + (if (bust) "?cachebust=${cachebust}" else ""))
-            .check(
-              status.in(200 to 299),
-              regex("govuk:rendering-application").count.is(1),
-              regex("govuk:content-id").count.is(1)
-            ))
+        .repeat("${hits}", "hit") {
+          val cachebust = "?cachebust=${cachebust}-${hit}"
+          exec(
+            http("${base_path}")
+              .get("${base_path}" + (if (bust) cachebust else ""))
+              .check(
+                status.in(200 to 299),
+                regex("govuk:rendering-application").count.is(1),
+                regex("govuk:content-id").count.is(1)
+              ))
+        }
     }
 
   setUp(
