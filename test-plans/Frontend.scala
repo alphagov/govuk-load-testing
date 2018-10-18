@@ -30,6 +30,7 @@ class Frontend extends Simulation {
     .acceptEncodingHeader("gzip, deflate")
     .basicAuth(username, password)
     .headers(extraHeaders)
+    .disableCaching
 
   val paths = csv(dataDir + java.io.File.separatorChar + "paths.csv").readRecords
 
