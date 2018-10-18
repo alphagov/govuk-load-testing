@@ -11,7 +11,7 @@ class Frontend extends Simulation {
   val username = sys.props.get("username").get
   val password = sys.props.get("password").get
   val rateLimitToken = sys.props.get("rateLimitToken")
-  val users = sys.props.getOrElse("users", "1").toInt
+  val workers = sys.props.getOrElse("workers", "1").toInt
   val ramp = sys.props.getOrElse("ramp", "0").toInt
   val bust = sys.props.getOrElse("bust", "false").toBoolean
   val factor = sys.props.getOrElse("factor", "1").toFloat
@@ -35,7 +35,7 @@ class Frontend extends Simulation {
 
   val paths = csv(dataDir + java.io.File.separatorChar + "paths.csv").readRecords
 
-  val scale = factor / users
+  val scale = factor / workers
 
   val frontend = scenario("Frontend")
     .feed(cachebuster)
@@ -56,6 +56,6 @@ class Frontend extends Simulation {
     }
 
   setUp(
-    frontend.inject(rampUsers(users) during (ramp seconds))
+    frontend.inject(rampUsers(workers) during (ramp seconds))
   ).protocols(httpProtocol)
 }

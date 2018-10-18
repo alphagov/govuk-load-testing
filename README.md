@@ -33,8 +33,8 @@ We use Java properties to pass options to the script which we don't want to hard
 - `username` is the HTTP basic auth username
 - `password` is the HTTP basic auth password
 - `rateLimitToken` is the value of the `Rate-Limit-Token` header (optional, defaults to unset)
-- `users` is the number of simulated users (optional, defaults to 1)
-- `ramp` is the duration, in seconds,  over which the users are started (optional, defaults to 0)
+- `workers` is the number of threads making requests (optional, defaults to 1)
+- `ramp` is the duration, in seconds, over which the workers are started (optional, defaults to 0)
 - `bust` is whether to pass a unique cache-busting string with every request or not (optional, defaults to false)
 - `factor` is the multiplier to apply to the amount of desired traffic (optional, defaults to 1)
 
@@ -80,7 +80,7 @@ Tets plans live in the `test-plans` directory.  Their data files live in the `te
 
 **Data files:** paths.csv
 
-For an entry `base_path,hits`, each worker requests `base_path` `ceil(hits * factor / users)` times, with no delay between requests.  Each worker proceeds through the csv in order.
+For an entry `base_path,hits`, each worker requests `base_path` `ceil(hits * factor / workers)` times, with no delay between requests.  Each worker proceeds through the csv in order.
 
 
 Troubleshooting
