@@ -24,17 +24,17 @@ How to run a test plan on your machine
 
 We use Java properties to pass options to the script which we don't want to hard-code:
 
-- `baseurl` is prepended to all requests, at the least it should include the scheme and domain name
+- `baseUrl` is prepended to all requests, at the least it should include the scheme and domain name
 - `username` is the HTTP basic auth username
 - `password` is the HTTP basic auth password
-- `ratelimittoken` is the value of the "Rate-Limit-Header" (optional, defaults to unset)
+- `rateLimitToken` is the value of the "Rate-Limit-Header" (optional, defaults to unset)
 - `users` is the number of simulated users (optional, defaults to 1)
 - `ramp` is the duration, in seconds,  over which the users are started (optional, defaults to 0)
 
 These properties can be set using the `JAVA_OPTS` environment variable:
 
 ```
-> export JAVA_OPTS="-Dbaseurl=https://... -Dusername=... -Dpassword=... -Dratelimittoken=..."
+> export JAVA_OPTS="-DbaseUrl=https://... -Dusername=... -Dpassword=... -DrateLimitToken=..."
 ```
 
 Gatling provides a wrapper script to compile and launch test plans in its `user-files` directory:
