@@ -30,6 +30,7 @@ We use Java properties to pass options to the script which we don't want to hard
 - `rateLimitToken` is the value of the "Rate-Limit-Header" (optional, defaults to unset)
 - `users` is the number of simulated users (optional, defaults to 1)
 - `ramp` is the duration, in seconds,  over which the users are started (optional, defaults to 0)
+- `bust` is whether to pass a unique cache-busting string with every request or not (optional, defaults to false)
 
 These properties can be set using the `JAVA_OPTS` environment variable:
 

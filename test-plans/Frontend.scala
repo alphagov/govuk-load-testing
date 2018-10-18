@@ -3,6 +3,7 @@ package govuk
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import scala.concurrent.duration._
+import scala.util.Random
 
 class Frontend extends Simulation {
   val baseUrl = sys.props.get("baseUrl").get
@@ -11,6 +12,9 @@ class Frontend extends Simulation {
   val rateLimitToken = sys.props.get("rateLimitToken")
   val users = sys.props.getOrElse("users", "1").toInt
   val ramp = sys.props.getOrElse("ramp", "0").toInt
+  val bust = sys.props.getOrElse("bust", "false").toBoolean
+
+  val cachebuster = Iterator.continually(Map("cachebust" -> (Random.alphanumeric.take(50).mkString)))
 
   val extraHeaders = Map(
     "Rate-Limit-Token" -> rateLimitToken
@@ -26,7 +30,10 @@ class Frontend extends Simulation {
     .headers(extraHeaders)
 
   val frontend = scenario("Frontend")
-    .exec(http("homepage").get("/"))
+    .feed(cachebuster)
+    .exec(http("homepage")
+      .get(if (bust) "/?cachebust=${cachebust}" else "/")
+    )
 
   setUp(
     frontend.inject(rampUsers(users) during (ramp seconds))
