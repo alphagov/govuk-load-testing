@@ -14,6 +14,7 @@ class Frontend extends Simulation {
   val users = sys.props.getOrElse("users", "1").toInt
   val ramp = sys.props.getOrElse("ramp", "0").toInt
   val bust = sys.props.getOrElse("bust", "false").toBoolean
+  val factor = sys.props.getOrElse("factor", "1").toFloat
 
   val cachebuster = Iterator.continually(
     Map("cachebust" -> (Random.alphanumeric.take(50).mkString)))
@@ -34,11 +35,14 @@ class Frontend extends Simulation {
 
   val paths = csv(dataDir + java.io.File.separatorChar + "paths.csv").readRecords
 
+  val scale = factor / users
+
   val frontend = scenario("Frontend")
     .feed(cachebuster)
     .foreach(paths, "path") {
       exec(flattenMapIntoAttributes("${path}"))
-        .repeat("${hits}", "hit") {
+        .repeat(session => math.ceil(session("hits").as[Int] * scale).toInt,
+                "hit") {
           val cachebust = "?cachebust=${cachebust}-${hit}"
           exec(
             http("${base_path}")
