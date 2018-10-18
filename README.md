@@ -7,6 +7,10 @@ In this README, `$GATLING_HOME` is the directory where Gatling is installed to.
 
 For example, if you download version 3.0.0-RC4 of the Gatling bundle zip and extract it in your `~/Downloads` folder, `$GATLING_HOME` is `~/Downloads/gatling-charts-highcharts-bundle-3.0.0-RC4`
 
+- [Set-up](#set-up)
+- [How to run a test plan](#how-to-run-a-test-plan)
+- [List of test plans](#list-of-test-plans)
+
 
 Set up
 ------
@@ -18,8 +22,8 @@ Set up
 4. Copy or symlink the `test-plans` directory in this repository to `$GATLING_HOME/user-files/simulations/`
 
 
-How to run a test plan on your machine
---------------------------------------
+How to run a test plan
+----------------------
 
 We use Java properties to pass options to the script which we don't want to hard-code:
 
@@ -38,10 +42,11 @@ These properties can be set using the `JAVA_OPTS` environment variable:
 > export JAVA_OPTS="-DbaseUrl=https://... -Dusername=... -Dpassword=... -DrateLimitToken=..."
 ```
 
+###  On a single machine
+
 Gatling provides a wrapper script to compile and launch test plans in its `user-files` directory:
 
 ```
-> cd test-data
 > $GATLING_HOME/bin/gatling.sh
 GATLING_HOME is set to /Users/michaelswalker/Downloads/gatling-charts-highcharts-bundle-3.0.0-RC4
 Choose a simulation number:
@@ -57,16 +62,17 @@ Choose a simulation number:
 "computerdatabase" is a collection of example test plans for http://computer-database.gatling.io
 
 
-How to run a test plan across multiple machines
------------------------------------------------
+### Across multiple machines
 
 to do
 
 https://gatling.io/docs/3.0/cookbook/scaling_out/
 
 
-Test plans
-----------
+List of test plans
+------------------
+
+Tets plans live in the `test-plans` directory.  Their data files live in the `test-data` directory.
 
 ### govuk.Frontend
 
