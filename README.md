@@ -10,6 +10,7 @@ For example, if you download version 3.0.0-RC4 of the Gatling bundle zip and ext
 - [Set-up](#set-up)
 - [How to run a test plan](#how-to-run-a-test-plan)
 - [List of test plans](#list-of-test-plans)
+- [Troubleshooting](#troubleshooting)
 
 
 Set up
@@ -79,3 +80,11 @@ Tets plans live in the `test-plans` directory.  Their data files live in the `te
 **Data files:** paths.csv
 
 Each worker requests every path in the csv file in order, with no delay between requests.
+
+
+Troubleshooting
+---------------
+
+### My requests are being rate limited
+
+Set the `rateLimitToken` property, and make sure the token is valid for the environment you're testing.  These tokens live in the encrypted hieradata in [govuk-secrets](https://github.com/alphagov/govuk-secrets).
