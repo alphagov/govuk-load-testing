@@ -63,6 +63,7 @@ Choose a simulation number:
      [4] computerdatabase.advanced.AdvancedSimulationStep04
      [5] computerdatabase.advanced.AdvancedSimulationStep05
      [6] govuk.Frontend
+     [7] govuk.Spider
 ```
 
 "computerdatabase" is a collection of example test plans for http://computer-database.gatling.io
@@ -87,6 +88,12 @@ Tets plans live in the `test-plans` directory.  Their data files live in the `te
 **Properties:** `factor` (default: 1), the multiplier to apply to the amount of desired traffic
 
 For an entry `base_path,hits`, each worker requests `base_path` `ceil(hits * factor / workers)` times, with no delay between requests.  Each worker proceeds through the csv in order.
+
+### govuk.Spider
+
+**Properties:** `steps` (default: 10), the number of links to follow (not including the / page)
+
+Each worker loads the / page, then follows random links until they have followed `steps` links.
 
 
 Troubleshooting

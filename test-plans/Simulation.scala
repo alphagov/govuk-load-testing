@@ -5,6 +5,8 @@ import io.gatling.core.scenario
 import io.gatling.core.structure.ScenarioBuilder
 import io.gatling.http.HeaderNames
 import io.gatling.http.Predef._
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.request.builder.HttpRequestBuilder
 import scala.concurrent.duration._
 import scala.util.Random
 
@@ -35,16 +37,20 @@ abstract class Simulation extends scenario.Simulation {
     .headers(extraHeaders)
     .disableCaching
 
-  def get(path: String, cachebust: String) =
+  val commonChecks: Seq[HttpCheck] = Seq(
+    status.in(200 to 299),
+    checkIf(session => {
+      session("content-type").as[String] contains "text/html"
+    })(regex("govuk:rendering-application").count.is(1))
+  )
+
+  def get(path: String,
+          cachebust: String,
+          extraChecks: Seq[HttpCheck] = Seq()): HttpRequestBuilder =
     http(path)
       .get(path + (if (bust) "?cachebust=" + cachebust else ""))
       .check(header(HeaderNames.ContentType).saveAs("content-type"))
-      .check(
-        status.in(200 to 299),
-        checkIf(session => {
-          session("content-type").as[String] contains "text/html"
-        })(regex("govuk:rendering-application").count.is(1))
-      )
+      .check((commonChecks ++ extraChecks): _*)
 
   def run(scn: ScenarioBuilder) =
     setUp(
