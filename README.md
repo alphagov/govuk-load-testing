@@ -91,9 +91,13 @@ For an entry `base_path,hits`, each worker requests `base_path` `ceil(hits * fac
 
 ### govuk.Spider
 
-**Properties:** `steps` (default: 10), the number of links to follow (not including the / page)
+**Properties:**
 
-Each worker loads the / page, then follows random links until they have followed `steps` links.
+- `minSteps` (default: 5), the minimum number of links to follow
+- `maxSteps` (default: 50), the maximum number of links to follow
+- `steps` (default: unset), the number of links to follow, overrides `minSteps` and `maxSteps`
+
+Each worker selects a random number of links to follow between `minSteps` and `maxSteps` inclusive (or `steps`, if given), and follows randomly selected links, starting from the / page.
 
 
 Troubleshooting
