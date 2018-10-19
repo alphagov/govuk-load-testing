@@ -39,8 +39,7 @@ abstract class Simulation extends scenario.Simulation {
       .get(path + (if (bust) "?cachebust=" + cachebust else ""))
       .check(
         status.in(200 to 299),
-        regex("govuk:rendering-application").count.is(1),
-        regex("govuk:content-id").count.is(1)
+        regex("govuk:rendering-application").count.is(1)
       )
 
   def run(scn: ScenarioBuilder) =
