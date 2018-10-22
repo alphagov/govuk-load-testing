@@ -15,14 +15,7 @@ CSV.foreach(infname) do |row|
   current_path = path if current_path.nil?
 
   unless path == current_path
-    top_bucket = nil
-    top_hits = -1
-    buckets.each do |this_bucket, this_hits|
-      if this_hits > top_hits
-        top_bucket = this_bucket
-        top_hits = this_hits
-      end
-    end
+    top_bucket, top_hits = buckets.max_by { |_, h| h }
     paths[current_path] = [top_bucket, top_hits]
 
     current_path = path

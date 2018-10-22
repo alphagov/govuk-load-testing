@@ -16,14 +16,7 @@ CSV.foreach(infname) do |row|
   buckets[bucket] = hits + buckets.fetch(bucket, 0)
 end
 
-top_bucket = nil
-top_bucket_hits = -1
-buckets.each do |bucket, hits|
-  if hits > top_bucket_hits
-    top_bucket = bucket
-    top_bucket_hits = hits
-  end
-end
+top_bucket, _ = buckets.max_by { |_, h| h }
 
 paths = {}
 puts "[pass 2] reading #{infname}"
