@@ -3,6 +3,7 @@ package govuk
 import io.gatling.core.Predef._
 import io.gatling.core.scenario
 import io.gatling.core.structure.ScenarioBuilder
+import io.gatling.http.HeaderNames
 import io.gatling.http.Predef._
 import scala.concurrent.duration._
 import scala.util.Random
@@ -37,9 +38,12 @@ abstract class Simulation extends scenario.Simulation {
   def get(path: String, cachebust: String) =
     http(path)
       .get(path + (if (bust) "?cachebust=" + cachebust else ""))
+      .check(header(HeaderNames.ContentType).saveAs("content-type"))
       .check(
         status.in(200 to 299),
-        regex("govuk:rendering-application").count.is(1)
+        checkIf(session => {
+          session("content-type").as[String] contains "text/html"
+        })(regex("govuk:rendering-application").count.is(1))
       )
 
   def run(scn: ScenarioBuilder) =
