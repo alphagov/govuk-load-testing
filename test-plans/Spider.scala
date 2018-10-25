@@ -8,6 +8,7 @@ class Spider extends Simulation {
   val minSteps = sys.props.getOrElse("minSteps", "5").toInt
   val maxSteps = sys.props.getOrElse("maxSteps", "50").toInt
   val steps = sys.props.get("steps")
+  val startPage = sys.props.getOrElse("startPage", "/")
 
   val stepper = Iterator.continually(Map("steps" -> (steps match {
     // giving a "steps" value overrides the min/max steps
@@ -20,7 +21,7 @@ class Spider extends Simulation {
     scenario("Spider")
       .feed(cachebuster)
       .feed(stepper)
-      .exec(session => session.set("href", "/"))
+      .exec(session => session.set("href", startPage))
       .repeat("${steps}", "step") {
         exec(
           get("${href}",
