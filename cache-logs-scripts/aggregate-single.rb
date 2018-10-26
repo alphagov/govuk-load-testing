@@ -12,6 +12,9 @@ CSV.foreach(infname, headers: false, col_sep: ' ') do |request|
   method = req_bits[0]
   next unless method == 'GET'
 
+  status = request[6]
+  next if status.start_with? '4'
+
   bucket = time.strftime('%Y-%m-%d %H:%M')
   path = req_bits[1]
 
