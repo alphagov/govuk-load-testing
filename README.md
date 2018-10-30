@@ -88,6 +88,8 @@ Tets plans live in the `test-plans` directory.  Their data files live in the `te
 
 For an entry `base_path,hits`, each worker requests `base_path` `ceil(hits * factor / workers)` times, with no delay between requests.  Each worker proceeds through the csv in order.
 
+If you are having difficulty running the entire test plan on a single machine within your desired duration, try splitting up the data file and [running multiple instances of Gatling simultaneously on different machines](#across-multiple-machines).
+
 
 Troubleshooting
 ---------------
