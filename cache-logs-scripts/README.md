@@ -8,7 +8,7 @@ Processes the `lb-access` log files from `cache-[123]` to find:
 
 This information can be used to produce a test data file for the `govuk.Frontend` test plan: perhaps you want to re-run the busiest minute, but with traffic increased by a factor of 10.
 
-This only considers `GET` requests, removes querystrings, and doesn't count requests to `/government/uploads`.
+This only considers `GET` requests and doesn't count requests to `/government/uploads`.
 
 
 How to use it

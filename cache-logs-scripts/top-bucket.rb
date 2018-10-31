@@ -3,15 +3,11 @@ require 'csv'
 outfname = ARGV.shift
 infname = ARGV.shift
 
-hit_threshold = 3
-
 buckets = {}
 puts "[pass 1] reading #{infname}"
 CSV.foreach(infname) do |row|
   bucket = row[1]
   hits = row[2].to_i
-
-  next if hits < hit_threshold
 
   buckets[bucket] = hits + buckets.fetch(bucket, 0)
 end
@@ -26,7 +22,6 @@ CSV.foreach(infname) do |row|
   hits = row[2].to_i
 
   next unless bucket == top_bucket
-  next if hits < hit_threshold
 
   paths[path] = hits + paths.fetch(path, 0)
 end
