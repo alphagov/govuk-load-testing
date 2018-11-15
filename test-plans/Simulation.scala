@@ -11,8 +11,8 @@ import scala.util.Random
 abstract class Simulation extends scenario.Simulation {
   val dataDir = sys.props.getOrElse("dataDir", "test-data")
   val baseUrl = sys.props.get("baseUrl").get
-  val username = sys.props.get("username").get
-  val password = sys.props.get("password").get
+  val username = sys.props.getOrElse("username", "")
+  val password = sys.props.getOrElse("password", "")
   val rateLimitToken = sys.props.get("rateLimitToken")
   val workers = sys.props.getOrElse("workers", "1").toInt
   val ramp = sys.props.getOrElse("ramp", "0").toInt
