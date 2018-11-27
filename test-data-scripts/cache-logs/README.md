@@ -1,5 +1,5 @@
-cache-logs-scripts
-==================
+cache-logs
+==========
 
 Processes the `lb-access` log files from `cache-[123]` to find:
 
