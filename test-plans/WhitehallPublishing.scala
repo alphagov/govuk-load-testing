@@ -8,28 +8,11 @@ import scala.util.Random
 class WhitehallPublishing extends Simulation {
   val factor = sys.props.getOrElse("factor", "1").toFloat
   val scale = factor / workers
-  val signonUrl = sys.props.get("signonUrl").get + "/users/sign_in"
   val lipsum = new LoremIpsum()
 
   val scn =
     scenario("Publishing Whitehall guidance")
-      .exec(
-        http("Visit signon")
-          .get(signonUrl)
-          .check(status.is(200))
-          .check(
-            regex("Sign in to GOV.UK").exists,
-            css("input[name=authenticity_token]", "value").saveAs("signonAuthToken")
-          )
-      )
-      .exec(
-        http("Authenticate in signon")
-          .post(signonUrl)
-          .formParam("authenticity_token", """${signonAuthToken}""")
-          .formParam("user[email]", sys.env.get("USERNAME").get)
-          .formParam("user[password]", sys.env.get("PASSWORD").get)
-          .check(status.is(200))
-      )
+      .exec(Signon.authenticate)
       .exec(
         http("Draft a new publication")
           .get("/government/admin/publications/new")
