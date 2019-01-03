@@ -106,7 +106,5 @@ class WhitehallPublishing extends Simulation {
           .check(regex("Force published: Gatling load test run").exists)
       )
 
-    // This is a proof of concept so limit to 1 request
-    // this can be scaled up with the usual call of `run(scn)`
-    setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)
+  run(scn)
 }
