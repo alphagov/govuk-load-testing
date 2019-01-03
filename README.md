@@ -32,11 +32,16 @@ We use Java properties to pass options to the script which we don't want to hard
 > export JAVA_OPTS="-Dkey1=value1 -Dkey2=value2 ..."
 ```
 
-The following properties are required:
+The following property is required:
 
 - `baseUrl`, prepended to all requests, at the least it should include the scheme and domain name
+
+The following properties are necessary depending on the environment or scenario:
+
 - `username`, the HTTP basic auth username
 - `password`, the HTTP basic auth password
+
+The property `signonUrl` and environment variables `USERNAME` and `PASSWORD` are required for scenarios authenticating with a signon application.
 
 The following properties are optional:
 
@@ -89,6 +94,32 @@ Tets plans live in the `test-plans` directory.  Their data files live in the `te
 For an entry `base_path,hits`, each worker requests `base_path` `ceil(hits * factor / workers)` times, with no delay between requests.  Each worker proceeds through the csv in order.
 
 If you are having difficulty running the entire test plan on a single machine within your desired duration, try splitting up the data file and [running multiple instances of Gatling simultaneously on different machines](#across-multiple-machines).
+
+### govuk.WhitehallPublishing
+
+**Requires:** `signonUrl` property. `USERNAME` and `PASSWORD` environment variables.
+
+Steps:
+
+- Authenticates with signon
+- Drafts a publication
+- Attaches an HTML attachment
+- Tags to taxonomy
+- Force publishes
+
+
+### govuk.WhitehallPublishingCollections
+
+**Requires:** `signonUrl` property. `USERNAME` and `PASSWORD` environment variables.
+
+Steps:
+
+- Authenticates with signon
+- Drafts a collection
+- Searches for Gatling Test publications
+- Adds search results to collection
+- Tags to taxonomy
+- Force publishes
 
 
 Troubleshooting
