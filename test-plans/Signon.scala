@@ -4,7 +4,7 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
 /**
- * Signon scenario helper.
+ * Signon scenario singleton object.
  *
  * Env vars USERNAME and PASSWORD are used to authenticate with the signon
  * application configured using the JAVA_OPT 'signonUrl'.
