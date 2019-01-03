@@ -1,5 +1,6 @@
 package govuk
 
+import govuk.util.LoremIpsum
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import scala.util.Random
@@ -8,6 +9,7 @@ class WhitehallPublishing extends Simulation {
   val factor = sys.props.getOrElse("factor", "1").toFloat
   val scale = factor / workers
   val signonUrl = sys.props.get("signonUrl").get + "/users/sign_in"
+  val lipsum = new LoremIpsum()
 
   val scn =
     scenario("Publishing Whitehall guidance")
@@ -39,8 +41,10 @@ class WhitehallPublishing extends Simulation {
       )
       .exec(session => {
         val randomInt = Random.nextInt(Integer.MAX_VALUE)
-        session.set("randomInt", randomInt)
-        session.set("publicationTitle", s"Gatling test publication $randomInt")
+        session.setAll(
+          "randomInt"        -> randomInt,
+          "publicationTitle" -> s"Gatling test publication $randomInt"
+        )
       })
       .exec(
         http("Save a draft publication")
@@ -49,12 +53,7 @@ class WhitehallPublishing extends Simulation {
           .formParam("edition[publication_type_id]", "3")
           .formParam("edition[title]", """${publicationTitle}""")
           .formParam("edition[summary]", """${publicationTitle} summary text""")
-          .formParam("edition[body]", """## This is a test publication
-
-            TODO: Something to generate and/or include realistic content body.
-            This isn't enough text to emulate the sort of payload Whitehall would
-            typically send for a document"""
-          )
+          .formParam("edition[body]", s"""## Gatling test content\n\n${lipsum.text}""")
           .formParam("edition[previously_published]", "false")
           .formParam("edition[lead_organisation_ids][]", "1056")
       )
@@ -102,16 +101,9 @@ class WhitehallPublishing extends Simulation {
           .formParam("authenticity_token", """${attachmentAuthToken}""")
           .formParam("type", "html")
           .formParam("attachment[title]", """${publicationTitle} attachment""")
-          .formParam("attachment[govspeak_content_attributes][body]", """
-            ### ${publicationTitle} Attachment
-
-            Some html attachment text.
-            Maybe some govspeak:
-
-            - This
-            - That
-            - Something else
-          """
+          .formParam(
+            "attachment[govspeak_content_attributes][body]",
+            s"""## Gatling test attachment\n\n${lipsum.text}"""
           )
           .check(status.is(200))
       )
@@ -129,7 +121,7 @@ class WhitehallPublishing extends Simulation {
           .put("""${saveTagsAction}""")
           .formParam("authenticity_token", """${authToken}""")
           .formParam("taxonomy_tag_form[previous_version]", "1")
-          .formParam("taxonomy_tag_form[taxons][]", "e48ab80a-de80-4e83-bf59-26316856a5f9") // Could select these.
+          .formParam("taxonomy_tag_form[taxons][]", "e48ab80a-de80-4e83-bf59-26316856a5f9")
           .formParam("taxonomy_tag_form[taxons][]", "67f50352-bc30-482f-a2d0-a05714e3cea8")
           .check(status.is(200))
       )
