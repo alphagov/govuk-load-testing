@@ -1,5 +1,7 @@
 package govuk
 
+import govuk.util.LoremIpsum
+import io.gatling.commons.validation._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import scala.util.Random
@@ -7,6 +9,7 @@ import scala.util.Random
 class WhitehallPublishingCollections extends Simulation {
   val factor = sys.props.getOrElse("factor", "1").toFloat
   val scale = factor / workers
+  val lipsum = new LoremIpsum()
 
   val scn =
     scenario("Publishing Whitehall collections")
@@ -32,12 +35,7 @@ class WhitehallPublishingCollections extends Simulation {
           .formParam("edition[lock_version]", "0")
           .formParam("edition[title]", """${collectionTitle}""")
           .formParam("edition[summary]", """${collectionTitle} summary text""")
-          .formParam("edition[body]", """## Gatling test collection
-
-            TODO: Something to generate and/or include realistic content body.
-            This isn't enough text to emulate the sort of payload Whitehall would
-            typically send for a document"""
-          )
+          .formParam("edition[body]", s"""## Gatling test collection\n\n${lipsum.text}""")
           .formParam("edition[previously_published]", "false")
           .formParam("edition[lead_organisation_ids][]", "1056")
       )
@@ -65,31 +63,42 @@ class WhitehallPublishingCollections extends Simulation {
         http("Edit draft collection")
           .get("""${editDraftLink}""")
           .check(status.is(200))
-          .check(regex("Edit publication").exists)
+          .check(regex("Edit document collection").exists)
           .check(
-            css(".nav-tabs li:nth-of-type(2) a", "href").saveAs("attachmentsLink")
+            css(".nav-tabs li:nth-of-type(2) a", "href").saveAs("documentsLink")
           )
       )
       .exec(
-        http("Edit draft tags")
-          .get("""${addTagsLink}""")
+        http("Search for documents")
+          .get("/government/admin/document_searches.json?title=gatling+test+publication")
           .check(status.is(200))
+          .check(jsonPath("$.results_any?").is("true"))
+          .check(jsonPath("$.results[*].document_id").findAll.saveAs("documentIds"))
+      )
+      .exec(
+        http("Visit collection documents form")
+          .get("""${documentsLink}""")
+          .check(status.is(200))
+          .check(regex("Add document to a group").exists)
           .check(
-            css(".new_taxonomy_tag_form", "action").saveAs("saveTagsAction"),
-            css(".new_taxonomy_tag_form input[name=authenticity_token]", "value").saveAs("authToken")
+            css("form.document-finder", "action").saveAs("addDocumentFormAction"),
+            css("form.document-finder input[name=authenticity_token]", "value").saveAs("documentFinderAuthToken"),
+            css("form.document-finder select[name=group_id] option:nth-of-type(1)", "value").saveAs("groupId")
           )
       )
+      .foreach(session => session("documentIds").as[Seq[Int]], "documentId", "index"){
+        exec(
+          http("Add document to collection")
+            .post("""${addDocumentFormAction}""")
+            .formParam("authenticity_token", """${documentFinderAuthToken}""")
+            .formParam("document_id", """${documentId}""")
+            .formParam("group_id", """${groupId}""")
+            .check(status.is(200))
+        )
+      }
+      .exec(Taxonomy.tag)
       .exec(
-        http("Update draft tags")
-          .put("""${saveTagsAction}""")
-          .formParam("authenticity_token", """${authToken}""")
-          .formParam("taxonomy_tag_form[previous_version]", "1")
-          .formParam("taxonomy_tag_form[taxons][]", "e48ab80a-de80-4e83-bf59-26316856a5f9") // Could select these.
-          .formParam("taxonomy_tag_form[taxons][]", "67f50352-bc30-482f-a2d0-a05714e3cea8")
-          .check(status.is(200))
-      )
-      .exec(
-        http("Force publish publication")
+        http("Force publish collection")
           .post("""${forcePublishAction}""")
           .formParam("authenticity_token", """${forcePublishAuthToken}""")
           .formParam("reason", "Gatling load test run")
@@ -97,8 +106,8 @@ class WhitehallPublishingCollections extends Simulation {
           .check(status.is(200))
       )
       .exec(
-        http("Visit publication overview")
-          .get("""${publicationLink}""")
+        http("Visit collection overview")
+          .get("""${collectionLink}""")
           .check(status.is(200))
           .check(regex("Force published: Gatling load test run").exists)
       )
