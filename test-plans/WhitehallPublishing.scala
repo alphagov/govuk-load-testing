@@ -8,28 +8,11 @@ import scala.util.Random
 class WhitehallPublishing extends Simulation {
   val factor = sys.props.getOrElse("factor", "1").toFloat
   val scale = factor / workers
-  val signonUrl = sys.props.get("signonUrl").get + "/users/sign_in"
   val lipsum = new LoremIpsum()
 
   val scn =
     scenario("Publishing Whitehall guidance")
-      .exec(
-        http("Visit signon")
-          .get(signonUrl)
-          .check(status.is(200))
-          .check(
-            regex("Sign in to GOV.UK").exists,
-            css("input[name=authenticity_token]", "value").saveAs("signonAuthToken")
-          )
-      )
-      .exec(
-        http("Authenticate in signon")
-          .post(signonUrl)
-          .formParam("authenticity_token", """${signonAuthToken}""")
-          .formParam("user[email]", sys.env.get("USERNAME").get)
-          .formParam("user[password]", sys.env.get("PASSWORD").get)
-          .check(status.is(200))
-      )
+      .exec(Signon.authenticate)
       .exec(
         http("Draft a new publication")
           .get("/government/admin/publications/new")
@@ -107,24 +90,7 @@ class WhitehallPublishing extends Simulation {
           )
           .check(status.is(200))
       )
-      .exec(
-        http("Edit draft tags")
-          .get("""${addTagsLink}""")
-          .check(status.is(200))
-          .check(
-            css(".new_taxonomy_tag_form", "action").saveAs("saveTagsAction"),
-            css(".new_taxonomy_tag_form input[name=authenticity_token]", "value").saveAs("authToken")
-          )
-      )
-      .exec(
-        http("Update draft tags")
-          .put("""${saveTagsAction}""")
-          .formParam("authenticity_token", """${authToken}""")
-          .formParam("taxonomy_tag_form[previous_version]", "1")
-          .formParam("taxonomy_tag_form[taxons][]", "e48ab80a-de80-4e83-bf59-26316856a5f9")
-          .formParam("taxonomy_tag_form[taxons][]", "67f50352-bc30-482f-a2d0-a05714e3cea8")
-          .check(status.is(200))
-      )
+      .exec(Taxonomy.tag)
       .exec(
         http("Force publish publication")
           .post("""${forcePublishAction}""")
