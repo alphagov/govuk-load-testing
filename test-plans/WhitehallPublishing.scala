@@ -39,15 +39,8 @@ class WhitehallPublishing extends Simulation {
           .formParam("edition[body]", s"""## Gatling test content\n\n${lipsum.text}""")
           .formParam("edition[previously_published]", "false")
           .formParam("edition[lead_organisation_ids][]", "1056")
-      )
-      .exec(
-        http("Visit documents index")
-          .get("/government/admin/editions?organisation=1056&state=active")
           .check(status.is(200))
-          .check(regex("My department’s documents").exists)
-          .check(
-            css("""a[title='View document ${publicationTitle}']""", "href").saveAs("publicationLink")
-          )
+          .check(css(".form-actions span.or_cancel a", "href").saveAs("publicationLink"))
       )
       .exec(
         http("Draft overview")
@@ -106,7 +99,5 @@ class WhitehallPublishing extends Simulation {
           .check(regex("Force published: Gatling load test run").exists)
       )
 
-    // This is a proof of concept so limit to 1 request
-    // this can be scaled up with the usual call of `run(scn)`
-    setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)
+  run(scn)
 }

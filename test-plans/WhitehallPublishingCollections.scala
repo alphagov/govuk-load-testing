@@ -25,8 +25,10 @@ class WhitehallPublishingCollections extends Simulation {
       )
       .exec(session => {
         val randomInt = Random.nextInt(Integer.MAX_VALUE)
-        session.set("randomInt", randomInt)
-        session.set("collectionTitle", s"Gatling test collection $randomInt")
+        session.setAll(
+          "randomInt" -> randomInt,
+          "collectionTitle" -> s"Gatling test collection $randomInt"
+        )
       })
       .exec(
         http("Save a draft collection")
@@ -38,15 +40,8 @@ class WhitehallPublishingCollections extends Simulation {
           .formParam("edition[body]", s"""## Gatling test collection\n\n${lipsum.text}""")
           .formParam("edition[previously_published]", "false")
           .formParam("edition[lead_organisation_ids][]", "1056")
-      )
-      .exec(
-        http("Visit documents index")
-          .get("/government/admin/editions?organisation=1056&state=active")
           .check(status.is(200))
-          .check(regex("My department’s documents").exists)
-          .check(
-            css("""a[title='View document ${collectionTitle}']""", "href").saveAs("collectionLink")
-          )
+          .check(css(".form-actions span.or_cancel a", "href").saveAs("collectionLink"))
       )
       .exec(
         http("Draft collection overview")
@@ -112,7 +107,5 @@ class WhitehallPublishingCollections extends Simulation {
           .check(regex("Force published: Gatling load test run").exists)
       )
 
-    // This is a proof of concept so limit to 1 request
-    // this can be scaled up with the usual call of `run(scn)`
-    setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)
+  run(scn)
 }
