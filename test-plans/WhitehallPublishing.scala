@@ -39,15 +39,8 @@ class WhitehallPublishing extends Simulation {
           .formParam("edition[body]", s"""## Gatling test content\n\n${lipsum.text}""")
           .formParam("edition[previously_published]", "false")
           .formParam("edition[lead_organisation_ids][]", "1056")
-      )
-      .exec(
-        http("Visit documents index")
-          .get("/government/admin/editions?organisation=1056&state=active")
           .check(status.is(200))
-          .check(regex("My department’s documents").exists)
-          .check(
-            css("""a[title='View document ${publicationTitle}']""", "href").saveAs("publicationLink")
-          )
+          .check(css(".form-actions span.or_cancel a", "href").saveAs("publicationLink"))
       )
       .exec(
         http("Draft overview")
