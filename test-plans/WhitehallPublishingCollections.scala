@@ -63,13 +63,25 @@ class WhitehallPublishingCollections extends Simulation {
             css(".nav-tabs li:nth-of-type(2) a", "href").saveAs("documentsLink")
           )
       )
-      .exec(
-        http("Search for documents")
-          .get("/government/admin/document_searches.json?title=gatling+test+publication")
-          .check(status.is(200))
-          .check(jsonPath("$.results_any?").is("true"))
-          .check(jsonPath("$.results[*].document_id").findAll.saveAs("documentIds"))
-      )
+      // Whitehall document searches are hard-limited to 10 results per search so use a search suffix
+      // to match on the random Int used when generating the publication title.
+      .foreach((1 to 9).toList, "suffix", "index"){
+        exec(
+          http("Search for documents")
+            .get("""/government/admin/document_searches.json?title=gatling+test+publication+${suffix}""")
+            .check(status.is(200))
+            .check(jsonPath("$.results_any?").is("true"))
+            .check(jsonPath("$.results[*].document_id").findAll.saveAs("documentIds"))
+        )
+        .exec(session => {
+          var documentIds = session("documentIds").as[Seq[Int]]
+          if (session.contains("publicationDocumentIds")) {
+            val existingDocumentIds = session("publicationDocumentIds").as[Seq[Int]]
+            documentIds = existingDocumentIds ++ documentIds
+          }
+          session.set("publicationDocumentIds", documentIds)
+        })
+      }
       .exec(
         http("Visit collection documents form")
           .get("""${documentsLink}""")
@@ -81,7 +93,7 @@ class WhitehallPublishingCollections extends Simulation {
             css("form.document-finder select[name=group_id] option:nth-of-type(1)", "value").saveAs("groupId")
           )
       )
-      .foreach(session => session("documentIds").as[Seq[Int]], "documentId", "index"){
+      .foreach(session => session("publicationDocumentIds").as[Seq[Int]], "documentId", "index"){
         exec(
           http("Add document to collection")
             .post("""${addDocumentFormAction}""")
