@@ -3,12 +3,15 @@ package govuk
 import govuk.util.LoremIpsum
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
+import java.time.LocalDateTime
 import scala.util.Random
 
 class WhitehallPublishing extends Simulation {
   val factor = sys.props.getOrElse("factor", "1").toFloat
   val scale = factor / workers
   val lipsum = new LoremIpsum()
+  val scheduleMinsFromNow = sys.props.getOrElse("scheduleMinsFromNow", "0").toInt
+  val scheduled = scheduleMinsFromNow > 15 // Whitehall scheduled publishing limit
 
   val scn =
     scenario("Publishing Whitehall guidance")
@@ -24,21 +27,37 @@ class WhitehallPublishing extends Simulation {
       )
       .exec(session => {
         val randomInt = Random.nextInt(Integer.MAX_VALUE)
+        val publicationTitle = s"Gatling test publication $randomInt"
+        var baseParams = Seq[(String, Any)](
+          ("authenticity_token", session("authToken").as[String]),
+          ("edition[publication_type_id]", "3"),
+          ("edition[title]", publicationTitle),
+          ("edition[summary]", s"$publicationTitle summary text"),
+          ("edition[body]", s"""## Gatling test content\n\n${lipsum.text}"""),
+          ("edition[lead_organisation_ids][]", "1056"),
+          ("edition[previously_published]", "false")
+        )
+      if (scheduled) {
+          val scheduled = LocalDateTime.now().plusMinutes(scheduleMinsFromNow)
+          baseParams = baseParams ++ Seq[(String, Any)](
+            ("scheduled_publication_active", "1"),
+            ("edition[scheduled_publication(1i)]", scheduled.getYear()),
+            ("edition[scheduled_publication(2i)]", scheduled.getMonthValue()),
+            ("edition[scheduled_publication(3i)]", scheduled.getDayOfMonth()),
+            ("edition[scheduled_publication(4i)]", scheduled.getHour()),
+            ("edition[scheduled_publication(5i)]", scheduled.getMinute())
+          )
+        }
         session.setAll(
           "randomInt"        -> randomInt,
-          "publicationTitle" -> s"Gatling test publication $randomInt"
+          "publicationTitle" -> publicationTitle,
+          "baseParams"       -> baseParams
         )
       })
       .exec(
         http("Save a draft publication")
           .post("/government/admin/publications")
-          .formParam("authenticity_token", """${authToken}""")
-          .formParam("edition[publication_type_id]", "3")
-          .formParam("edition[title]", """${publicationTitle}""")
-          .formParam("edition[summary]", """${publicationTitle} summary text""")
-          .formParam("edition[body]", s"""## Gatling test content\n\n${lipsum.text}""")
-          .formParam("edition[previously_published]", "false")
-          .formParam("edition[lead_organisation_ids][]", "1056")
+          .formParamSeq("${baseParams}")
           .check(status.is(200))
           .check(css(".form-actions span.or_cancel a", "href").saveAs("publicationLink"))
       )
@@ -48,10 +67,20 @@ class WhitehallPublishing extends Simulation {
           .check(status.is(200))
           .check(
             css(".taxonomy-topics a.btn-default", "href").saveAs("addTagsLink"),
-            css(".edition-view-edit-buttons a.btn-default", "href").saveAs("editDraftLink"),
-            css(".force-publish-form", "action").saveAs("forcePublishAction"),
-            css(".force-publish-form input[name=authenticity_token]", "value").saveAs("forcePublishAuthToken")
+            css(".edition-view-edit-buttons a.btn-default", "href").saveAs("editDraftLink")
           )
+          .check(checkIf(scheduled) {
+            css(".edition-sidebar .button_to:nth-of-type(1)", "action").saveAs("forceScheduleAction")
+          })
+          .check(checkIf(scheduled) {
+            css(".edition-sidebar .button_to:nth-of-type(1) input[name=authenticity_token]", "value").saveAs("forceScheduleAuthToken")
+          })
+          .check(checkIf(!scheduled) {
+            css(".force-publish-form", "action").saveAs("forcePublishAction")
+          })
+          .check(checkIf(!scheduled) {
+            css(".force-publish-form input[name=authenticity_token]", "value").saveAs("forcePublishAuthToken")
+          })
       )
       .exec(
         http("Edit draft")
@@ -84,20 +113,38 @@ class WhitehallPublishing extends Simulation {
           .check(status.is(200))
       )
       .exec(Taxonomy.tag)
-      .exec(
-        http("Force publish publication")
-          .post("""${forcePublishAction}""")
-          .formParam("authenticity_token", """${forcePublishAuthToken}""")
-          .formParam("reason", "Gatling load test run")
-          .formParam("commit", "Force publish")
-          .check(status.is(200))
-      )
-      .exec(
-        http("Visit publication overview")
-          .get("""${publicationLink}""")
-          .check(status.is(200))
-          .check(regex("Force published: Gatling load test run").exists)
-      )
+      .doIfOrElse(scheduled) {
+        exec(
+          http("Force schedule publication")
+            .post("""${forceScheduleAction}""")
+            .formParam("authenticity_token", """${forceScheduleAuthToken}""")
+            .formParam("reason", "Gatling load test run")
+            .formParam("commit", "Force schedule")
+            .check(status.is(200))
+        )
+        .exec(
+          http("Visit publication overview")
+            .get("""${publicationLink}""")
+            .check(status.is(200))
+            .check(regex("Scheduled for publication").exists)
+        )
+
+      }{
+        exec(
+          http("Force publish publication")
+            .post("""${forcePublishAction}""")
+            .formParam("authenticity_token", """${forcePublishAuthToken}""")
+            .formParam("reason", "Gatling load test run")
+            .formParam("commit", "Force publish")
+            .check(status.is(200))
+        )
+        .exec(
+          http("Visit publication overview")
+            .get("""${publicationLink}""")
+            .check(status.is(200))
+            .check(regex("Force published: Gatling load test run").exists)
+        )
+      }
 
   run(scn)
 }

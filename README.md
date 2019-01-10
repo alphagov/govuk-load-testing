@@ -99,13 +99,15 @@ If you are having difficulty running the entire test plan on a single machine wi
 
 **Requires:** `signonUrl` property. `USERNAME` and `PASSWORD` environment variables.
 
+**Optional:** `scheduleMinsFromNow` property will schedule publication. This value must be greater than `15` as Whitehall enforces this rule for scheduled publishing.
+
 Steps:
 
 - Authenticates with signon
 - Drafts a publication
 - Attaches an HTML attachment
 - Tags to taxonomy
-- Force publishes
+- Force publishes or force schedules
 
 
 ### govuk.WhitehallPublishingCollections
