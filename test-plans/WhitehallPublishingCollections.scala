@@ -63,7 +63,7 @@ class WhitehallPublishingCollections extends Simulation {
       )
       // Whitehall document searches are hard-limited to 10 results per search so use a search suffix
       // to match on the random Int used when generating the publication title.
-      .foreach((1 to 9).toList, "suffix", "index"){
+      .foreach((1 to 5).toList, "suffix", "index"){
         exec(
           http("Search for documents")
             .get("""/government/admin/document_searches.json?title=gatling+test+publication+${suffix}""")
