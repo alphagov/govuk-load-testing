@@ -6,9 +6,16 @@ import io.gatling.http.Predef._
 import java.time.LocalDateTime
 import scala.util.Random
 
+/**
+ * Scenario for Whitehall guidance.
+ *
+ * 1. Authenticates with signon
+ * 2. Creates a draft publication
+ * 3. Adds an HTML attachment
+ * 4. Tags to taxonomy
+ * 5. Force publish or force schedule
+ */
 class WhitehallPublishing extends Simulation {
-  val factor = sys.props.getOrElse("factor", "1").toFloat
-  val scale = factor / workers
   val lipsum = new LoremIpsum()
   val scheduleMinsFromNow = sys.props.getOrElse("scheduleMinsFromNow", "0").toInt
   val scheduled = scheduleMinsFromNow > 15 // Whitehall scheduled publishing limit
