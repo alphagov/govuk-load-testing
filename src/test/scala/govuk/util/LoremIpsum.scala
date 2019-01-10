@@ -10,4 +10,20 @@ class LoremIpsum {
   bufferedSource.close
 
   def text() = Random.shuffle(lines).mkString("\n")
+
+  def slug() {
+    val words = Random.shuffle(lines).head.split(" ")
+    words.slice(0,4).mkString("-")
+  }
+
+  def path() {
+    val words = Random.shuffle(lines).head.split(" ")
+    words.slice(0,2).mkString("/")
+  }
+
+  def sentence() {
+    val sentences = Random.shuffle(lines).head.split(". ")
+    val index = Random.nextInt(sentences.length)
+    sentences(index)
+  }
 }
