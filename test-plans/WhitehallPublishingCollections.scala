@@ -80,17 +80,24 @@ class WhitehallPublishingCollections extends Simulation {
           http("Search for documents")
             .get("""/government/admin/document_searches.json?title=gatling+test+publication+${suffix}""")
             .check(status.is(200))
-            .check(jsonPath("$.results_any?").is("true"))
-            .check(jsonPath("$.results[*].document_id").findAll.saveAs("documentIds"))
+            .check(jsonPath("$.results_any?").saveAs("hasResults"))
+            .check(
+              checkIf("${hasResults}") {
+                jsonPath("$.results[*].document_id").findAll.saveAs("documentIds")
+              }
+            )
         )
-        .exec(session => {
-          var documentIds = session("documentIds").as[Seq[Int]]
-          if (session.contains("publicationDocumentIds")) {
-            val existingDocumentIds = session("publicationDocumentIds").as[Seq[Int]]
-            documentIds = existingDocumentIds ++ documentIds
-          }
-          session.set("publicationDocumentIds", documentIds)
-        })
+        .pause(2) // Document search is slow and often 504s so give it some breathing space.
+        .doIf("${documentIds.exists()}") {
+          exec(session => {
+            var documentIds = session("documentIds").as[Seq[Int]]
+            if (session.contains("publicationDocumentIds")) {
+              val existingDocumentIds = session("publicationDocumentIds").as[Seq[Int]]
+              documentIds = existingDocumentIds ++ documentIds
+            }
+            session.set("publicationDocumentIds", documentIds)
+          })
+        }
       }
       .exec(
         http("Visit collection documents form")
