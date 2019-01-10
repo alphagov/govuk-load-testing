@@ -7,8 +7,6 @@ import io.gatling.http.Predef._
 import scala.util.Random
 
 class WhitehallPublishingCollections extends Simulation {
-  val factor = sys.props.getOrElse("factor", "1").toFloat
-  val scale = factor / workers
   val lipsum = new LoremIpsum()
 
   val scn =
