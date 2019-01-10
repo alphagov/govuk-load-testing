@@ -6,6 +6,18 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import scala.util.Random
 
+/**
+ * Scenario for Whitehall collections.
+ * NOTE: This scenario assumes that publications have already been published via
+ * the 'WhitehallPublishing' scenario. Documents from this scenario will be added
+ * to the collection.
+ *
+ * 1. Authenticates with signon
+ * 2. Creates draft collection
+ * 3. Adds documents to collection
+ * 4. Tags collection to taxonomy
+ * 5. Force publishes
+ */
 class WhitehallPublishingCollections extends Simulation {
   val lipsum = new LoremIpsum()
 
