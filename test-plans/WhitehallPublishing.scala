@@ -4,6 +4,7 @@ import govuk.util.LoremIpsum
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import scala.util.Random
 
 /**
@@ -16,9 +17,19 @@ import scala.util.Random
  * 5. Force publish or force schedule
  */
 class WhitehallPublishing extends Simulation {
+  val WhitehallSchedulingMin = 15
   val lipsum = new LoremIpsum()
-  val scheduleMinsFromNow = sys.props.getOrElse("scheduleMinsFromNow", "0").toInt
-  val scheduled = scheduleMinsFromNow > 15 // Whitehall scheduled publishing limit
+  val now = LocalDateTime.now()
+  val format = DateTimeFormatter.ISO_LOCAL_DATE_TIME // "yyyy-MM-ddTHH:mm" // eg. 2019-01-11T17:00
+  val schedule = sys.props.getOrElse("schedule", now.format(format))
+  //val format = new java.text.SimpleDateFormat(formatStr)
+  val scheduledAt = LocalDateTime.from(format.parse(schedule))
+  // Only schedule if scheduledAt is more than 15 mins from now.
+  val scheduled = scheduledAt.isAfter(now.plusMinutes(WhitehallSchedulingMin))
+
+  if (scheduled) {
+    println(s"Publishing scheduled for $scheduledAt")
+  }
 
   val scn =
     scenario("Publishing Whitehall guidance")
@@ -45,14 +56,13 @@ class WhitehallPublishing extends Simulation {
           ("edition[previously_published]", "false")
         )
       if (scheduled) {
-          val scheduled = LocalDateTime.now().plusMinutes(scheduleMinsFromNow)
           baseParams = baseParams ++ Seq[(String, Any)](
             ("scheduled_publication_active", "1"),
-            ("edition[scheduled_publication(1i)]", scheduled.getYear()),
-            ("edition[scheduled_publication(2i)]", scheduled.getMonthValue()),
-            ("edition[scheduled_publication(3i)]", scheduled.getDayOfMonth()),
-            ("edition[scheduled_publication(4i)]", scheduled.getHour()),
-            ("edition[scheduled_publication(5i)]", scheduled.getMinute())
+            ("edition[scheduled_publication(1i)]", scheduledAt.getYear()),
+            ("edition[scheduled_publication(2i)]", scheduledAt.getMonthValue()),
+            ("edition[scheduled_publication(3i)]", scheduledAt.getDayOfMonth()),
+            ("edition[scheduled_publication(4i)]", scheduledAt.getHour()),
+            ("edition[scheduled_publication(5i)]", scheduledAt.getMinute())
           )
         }
         session.setAll(
