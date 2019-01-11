@@ -99,7 +99,9 @@ If you are having difficulty running the entire test plan on a single machine wi
 
 **Requires:** `signonUrl` property. `USERNAME` and `PASSWORD` environment variables.
 
-**Optional:** `scheduleMinsFromNow` property will schedule publication. This value must be greater than `15` as Whitehall enforces this rule for scheduled publishing.
+**Optional:** `schedule` property will schedule publication.  
+This value must be a timestamp in the format `yyyy-MM-ddTHH:mm` (eg. `2019-01-10T17:30`). 
+The value must be at least 15 minutes before the test run as Whitehall enforces this rule for scheduled publishing.
 
 Steps:
 
