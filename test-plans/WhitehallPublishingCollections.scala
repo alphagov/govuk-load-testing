@@ -6,9 +6,19 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import scala.util.Random
 
+/**
+ * Scenario for Whitehall collections.
+ * NOTE: This scenario assumes that publications have already been published via
+ * the 'WhitehallPublishing' scenario. Documents from this scenario will be added
+ * to the collection.
+ *
+ * 1. Authenticates with signon
+ * 2. Creates draft collection
+ * 3. Adds documents to collection
+ * 4. Tags collection to taxonomy
+ * 5. Force publishes
+ */
 class WhitehallPublishingCollections extends Simulation {
-  val factor = sys.props.getOrElse("factor", "1").toFloat
-  val scale = factor / workers
   val lipsum = new LoremIpsum()
 
   val scn =
@@ -65,22 +75,29 @@ class WhitehallPublishingCollections extends Simulation {
       )
       // Whitehall document searches are hard-limited to 10 results per search so use a search suffix
       // to match on the random Int used when generating the publication title.
-      .foreach((1 to 9).toList, "suffix", "index"){
+      .foreach((1 to 5).toList, "suffix", "index"){
         exec(
           http("Search for documents")
             .get("""/government/admin/document_searches.json?title=gatling+test+publication+${suffix}""")
             .check(status.is(200))
-            .check(jsonPath("$.results_any?").is("true"))
-            .check(jsonPath("$.results[*].document_id").findAll.saveAs("documentIds"))
+            .check(jsonPath("$.results_any?").saveAs("hasResults"))
+            .check(
+              checkIf("${hasResults}") {
+                jsonPath("$.results[*].document_id").findAll.saveAs("documentIds")
+              }
+            )
         )
-        .exec(session => {
-          var documentIds = session("documentIds").as[Seq[Int]]
-          if (session.contains("publicationDocumentIds")) {
-            val existingDocumentIds = session("publicationDocumentIds").as[Seq[Int]]
-            documentIds = existingDocumentIds ++ documentIds
-          }
-          session.set("publicationDocumentIds", documentIds)
-        })
+        .pause(2) // Document search is slow and often 504s so give it some breathing space.
+        .doIf("${documentIds.exists()}") {
+          exec(session => {
+            var documentIds = session("documentIds").as[Seq[Int]]
+            if (session.contains("publicationDocumentIds")) {
+              val existingDocumentIds = session("publicationDocumentIds").as[Seq[Int]]
+              documentIds = existingDocumentIds ++ documentIds
+            }
+            session.set("publicationDocumentIds", documentIds)
+          })
+        }
       }
       .exec(
         http("Visit collection documents form")
