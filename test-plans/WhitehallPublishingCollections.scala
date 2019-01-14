@@ -20,6 +20,7 @@ import scala.util.Random
  */
 class WhitehallPublishingCollections extends Simulation {
   val lipsum = new LoremIpsum()
+  val documentSearches = sys.props.getOrElse("documentSearches", "1").toInt
 
   val scn =
     scenario("Publishing Whitehall collections")
@@ -75,17 +76,17 @@ class WhitehallPublishingCollections extends Simulation {
       )
       // Whitehall document searches are hard-limited to 10 results per search so use a search suffix
       // to match on the random Int used when generating the publication title.
-      .foreach((1 to 5).toList, "suffix", "index"){
-        exec(
+      .repeat(documentSearches, "index"){
+        exec(session => {
+          val suffix = session("index").as[Int] + 1
+          session.set("suffix", suffix)
+        })
+        .exec(
           http("Search for documents")
-            .get("""/government/admin/document_searches.json?title=gatling+test+publication+${suffix}""")
+            .get("""/government/admin/document_searches.json?state=published&title=gatling+test+publication+${suffix}""")
             .check(status.is(200))
-            .check(jsonPath("$.results_any?").saveAs("hasResults"))
-            .check(
-              checkIf("${hasResults}") {
-                jsonPath("$.results[*].document_id").findAll.saveAs("documentIds")
-              }
-            )
+            .check(jsonPath("$.results_any?").is("true"))
+            .check(jsonPath("$.results[*].document_id").findAll.saveAs("documentIds"))
         )
         .pause(2) // Document search is slow and often 504s so give it some breathing space.
         .doIf("${documentIds.exists()}") {

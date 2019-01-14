@@ -116,6 +116,8 @@ Steps:
 
 **Requires:** `signonUrl` property. `USERNAME` and `PASSWORD` environment variables.
 
+**Optional:** `documentSearches` property - How many document searches to make when adding to the collection.
+
 Steps:
 
 - Authenticates with signon
