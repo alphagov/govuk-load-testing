@@ -20,7 +20,7 @@ Set up
 
 2. Download and extract Gatling, these test plans are written for version 3
 
-4. Copy or symlink the `src/main/scala/govuk` directory in this repository to `$GATLING_HOME/user-files/simulations/`
+4. Copy or symlink the `src/test/scala/govuk` directory in this repository to `$GATLING_HOME/user-files/simulations/`
 
 
 How to run a test plan
