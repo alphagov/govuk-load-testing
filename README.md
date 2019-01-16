@@ -83,7 +83,7 @@ https://gatling.io/docs/3.0/cookbook/scaling_out/
 List of test plans
 ------------------
 
-Tets plans live in the `test-plans` directory.  Their data files live in the `test-data` directory.
+Tets plans live in the `src/test/scala` directory.  Their data files live in the `src/test/resources` directory.
 
 ### govuk.Frontend
 
