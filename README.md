@@ -20,7 +20,7 @@ Set up
 
 2. Download and extract Gatling, these test plans are written for version 3
 
-4. Copy or symlink the `test-plans` directory in this repository to `$GATLING_HOME/user-files/simulations/`
+4. Copy or symlink the `src/test/scala/govuk` directory in this repository to `$GATLING_HOME/user-files/simulations/`
 
 
 How to run a test plan
@@ -83,7 +83,7 @@ https://gatling.io/docs/3.0/cookbook/scaling_out/
 List of test plans
 ------------------
 
-Tets plans live in the `test-plans` directory.  Their data files live in the `test-data` directory.
+Tets plans live in the `src/test/scala` directory.  Their data files live in the `src/test/resources` directory.
 
 ### govuk.Frontend
 
@@ -100,7 +100,7 @@ If you are having difficulty running the entire test plan on a single machine wi
 **Requires:** `signonUrl` property. `USERNAME` and `PASSWORD` environment variables.
 
 **Optional:** `schedule` property will schedule publication.  
-This value must be a timestamp in the format `yyyy-MM-ddTHH:mm` (eg. `2019-01-10T17:30`). 
+This value must be a timestamp in the format `yyyy-MM-ddTHH:mm` (eg. `2019-01-10T17:30`).
 The value must be at least 15 minutes before the test run as Whitehall enforces this rule for scheduled publishing.
 
 Steps:
