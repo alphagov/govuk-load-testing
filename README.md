@@ -73,12 +73,36 @@ Choose a simulation number:
 "computerdatabase" is a collection of example test plans for http://computer-database.gatling.io
 
 
-### Across multiple machines
+### On AWS
 
-to do
+First make sure you are [logged in to AWS and have switched your role to production](https://docs.publishing.service.gov.uk/manual/aws-console-access.html#header).
 
-https://gatling.io/docs/3.0/cookbook/scaling_out/
+#### Launching an instance
 
+To launch a Gatling instance, follow the instructions below. You may find there is already an existing Gatling instance available in EC2,  in which case you can just start it without having to create a new one.
+
+1. Go to "AWS Marketplace Solutions" from the services list (you may need to switch region to N. Virginia).
+1. Select "Manage" on Gatling FrontLine, click on "Actions" and then "Launch new instance."
+1. Set the region to "EU (Ireland)" and click "Continue to Launch".
+1. Select your desired EC2 Instance Type (recommended `t2.2xlarge`).
+1. Choose the `vpc-07069e8dd026cc725` VPC, `subnet-00103e6927dd1fb36` subnet and `govuk_gatling_access` security group.
+1. Click "Launch" and you will be given a link to the EC2 instance.
+1. Find the Public DNS name for that instance and go to it in your browser. It should provide you with a wizard to complete the set up of the instance.
+1. You may find it useful to rename the instance in AWS to `gatling` so you can find it again easily.
+
+> **Note:** Gatling FrontLine instances cost $9/hour, so it's important to switch off the instance while it's not in use.
+
+#### Loading a plan
+
+Once you have a Gatling FrontLine EC2 instance, you can use it to load a plan.
+
+1. Click on "Create" at the top left to create your plan.
+1. Give it a name, and choose the classname that corresponds to the test plan class you want. For example, `govuk.Frontend` for [Frontend.scala](src/test/resources/scala/Frontend.scala). See below for the list of plans.
+1. Click next and choose "Build from sources" (should be the default option). Enter `git clone https://github.com/alphagov/govuk-load-testing.git` into the repository command box, choose `SBT Project` in the build command drop down and click next.
+1. If you're only using this one instance, choose the "Local" pool with a weight of 100%.
+1. Click on "More options" and here you can enter the `JAVA_OPTS` value in the second box. For example, to use 100 workers, you would enter `-Dworkers=100`. Please see the other parts of this documentation for all the parameters.
+1. Now you can click save and your plan should appear in the list. Click the play button to build it.
+1. Once your plan has built, it will go ahead and run it for you. You can click on the icon of a graph to view live updating results from the load test.
 
 List of test plans
 ------------------
