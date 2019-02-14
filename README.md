@@ -20,7 +20,27 @@ Set up
 
 2. Download and extract Gatling, these test plans are written for version 3
 
-4. Copy or symlink the `src/test/scala/govuk` directory in this repository to `$GATLING_HOME/user-files/simulations/`
+3. Copy or symlink the `src/test/scala/govuk` directory in this repository to `$GATLING_HOME/user-files/simulations/`
+
+### Setting up the symlink
+NOTE: Don't copy the directory if you set up the symlink as this may throw errors
+```
+$ ln -s /path/to/target /path/to/gatling/folder/
+```
+
+A symlink is required for Gatling to access the simulation files in this repo:
+```
+$ ln -s /Users/username/govuk/govuk-load-testing/src/test/resources/test-data /Users/username/gatling/user-files/resources/
+```
+
+Check the symlink has been set up correctly:
+```
+$ ls -la /Users/username/gatling/user-files/simulation
+lrwxr-xr-x  1 username  staff  65 14 Feb 13:54 /Users/username/gatling/user-files/simulation -> /Users/username/govuk/govuk-load-testing/src/test/scala/govuk/
+
+```
+
+In `$GATLING_HOME/user-files/simulations/test-plans` delete any duplicate .scala files as they should now come from the symlink.
 
 
 How to run a test plan
@@ -52,6 +72,7 @@ The following properties are optional:
 - `bust` (default: false), whether to pass a unique cache-busting string with every request or not
 
 These properties can be set using the `JAVA_OPTS` environment variable:
+
 
 ###  On a single machine
 
@@ -127,6 +148,12 @@ If you are having difficulty running the entire test plan on a single machine wi
 This value must be a timestamp in the format `yyyy-MM-ddTHH:mm` (eg. `2019-01-10T17:30`).
 The value must be at least 15 minutes before the test run as Whitehall enforces this rule for scheduled publishing.
 
+
+Example:
+```
+$ export JAVA_OPTS="-DbaseUrl=https://whitehall-admin.staging.publishing.service.gov.uk/ -Dworkers=1 -DsignonUrl=https://signon.staging.publishing.service.gov.uk/"
+```
+
 Steps:
 
 - Authenticates with signon
@@ -158,3 +185,25 @@ Troubleshooting
 ### My requests are being rate limited
 
 Set the `rateLimitToken` property, and make sure the token is valid for the environment you're testing.  These tokens live in the encrypted hieradata in [govuk-secrets](https://github.com/alphagov/govuk-secrets).
+
+### Authentication issues
+- Ensure the right permissions have been set for your test user
+- Disable 2FA
+
+You may need to use a different variable if `USERNAME` does not keep the user details you have set. Update this in [signon.scala](https://github.com/alphagov/govuk-load-testing/blob/master/src/test/scala/govuk/Signon.scala#L30
+)
+
+NOTE: `USERNAME` needs to be an email address
+
+### No such file or directory
+If you see an error such as:
+```
+15:16:48.524 [ERROR] i.g.a.Gatling$ - Run crashed
+java.io.FileNotFoundException: test-data/lorem-ipsum.txt (No such file or directory)
+```
+
+Ensure you run gatling in this repo, `govuk-load-testing`:
+```
+export GATLING_HOME=/Users/username/gatling/
+$GATLING_HOME/bin/gatling.sh
+```
