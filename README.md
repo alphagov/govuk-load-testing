@@ -207,3 +207,20 @@ Ensure you run gatling in this repo, `govuk-load-testing`:
 export GATLING_HOME=/Users/username/gatling/
 $GATLING_HOME/bin/gatling.sh
 ```
+
+### Exit scenario
+This may be useful to remove workers that fail at any step:
+```
+.exec{
+  //CODE
+}.exitHereIfFailed
+```
+
+### Output html
+```
+.exec(session => {
+  val response = session("BODY").as[String]
+  println(s"Response body: \n$response")
+  session
+})
+```
