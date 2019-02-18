@@ -32,31 +32,20 @@ There are 2 main methods to install and run Gatling:
 
 The installation steps are:
 1. Install a JDK, Gatling needs at least version 8
-2. [Download](https://gatling.io/download/) and extract Gatling, these test plans are written for version 3.
-3. Copy or symlink the `src/test/scala/govuk` directory of this repository to `$GATLING_HOME/user-files/simulations/`
-4. Copy or symlink the `src/test/resources/test-data` directory of this repository to `$GATLING_HOME/user-files/resources/`
+1. Clone this repository into your `~/govuk/` directory
+1. [Download](https://gatling.io/download/) and extract Gatling, these test plans are written for version 3
+1. Rename and move the extracted Gatling directory to `~/govuk/gatling` to make it available in `/var/govuk/gatling` in your Virtual Machine
+1. Symlink the `src/test/resources/test-data` directory of this repository to `$GATLING_HOME/user-files/resources/`
+  ```
+  $ ln -s ~/govuk/govuk-load-testing/src/test/resources/test-data ~/govuk/gatling/user-files/resources/
+  ```
+1. Set the needed environment variables:
+  - `$ export 'JAVA_OPTS=<required-options>'` (see [Configuration Options](#configuration))
+  - `$ export 'GATLING_USERNAME=<test-user-email>'`
+  - `$ export 'GATLING_PASSWORD=<test-user-password>'`
 
-#### Tips
-
-1. Setting up the symlink
-   NOTE: Don't copy the directory if you set up the symlink as this may throw errors
-    ```
-    $ ln -s /path/to/target /path/to/gatling/folder/
-    ```
-
-    A symlink is required for Gatling to access the simulation files in this repo:
-    ```
-    $ ln -s /Users/username/govuk/govuk-load-testing/src/test/resources/test-data /Users/username/gatling/user-files/resources/
-    ```
-
-    Check the symlink has been set up correctly:
-    ```
-    $ ls -la /Users/username/gatling/user-files/simulation
-    lrwxr-xr-x  1 username  staff  65 14 Feb 13:54 /Users/username/gatling/user-files/simulation -> /Users/username/govuk/govuk-load-testing/src/test/scala/govuk/
-
-    ```
-
-2. In `$GATLING_HOME/user-files/simulations/test-plans` delete any duplicate .scala files as they should now come from the symlink.
+    **Note:** `GATLING_USERNAME` and `GATLING_PASSWORD` are only needed for test plans using Signon.
+    These are the credentials for the test user that has been set up in Signon in the environment it's going to test in, e.g. `staging`.
 
 ### Running a Plan
 
@@ -64,23 +53,24 @@ In order to run a simulation plan, Gatling provides a wrapper script to compile 
 
 You can run Gatling by:
 1. running the following command:
-```
-$GATLING_HOME/bin/gatling.sh
-```
+  ```
+  $ $GATLING_HOME/bin/gatling.sh
+  ```
+  **Note:** This command must be run from within `~/govuk/govuk-load-testing` (or `/var/govuk/govuk-load-testing` if you are using the Virtual Machine).
 
 2. selecting the simulation plan number that you wish to run.
-    ```
-    Choose a simulation number:
-         [0] computerdatabase.BasicSimulation
-         [1] computerdatabase.advanced.AdvancedSimulationStep01
-         [2] computerdatabase.advanced.AdvancedSimulationStep02
-         [3] computerdatabase.advanced.AdvancedSimulationStep03
-         [4] computerdatabase.advanced.AdvancedSimulationStep04
-         [5] computerdatabase.advanced.AdvancedSimulationStep05
-         [6] govuk.Frontend
-    ```
-    A description of relevant simulation plans available for the gov.uk website
-    is available [here](#plans)
+  ```
+  Choose a simulation number:
+      [0] computerdatabase.BasicSimulation
+      [1] computerdatabase.advanced.AdvancedSimulationStep01
+      [2] computerdatabase.advanced.AdvancedSimulationStep02
+      [3] computerdatabase.advanced.AdvancedSimulationStep03
+      [4] computerdatabase.advanced.AdvancedSimulationStep04
+      [5] computerdatabase.advanced.AdvancedSimulationStep05
+      [6] govuk.Frontend
+  ```
+  A description of relevant simulation plans available for the gov.uk website
+  is available [here](#plans)
 
 
 ## <a name="aws-gatling">2.2 Rental of an enterprise Gatling Instance via AWS Marketplace</a>
@@ -119,7 +109,7 @@ Once you have a Gatling FrontLine EC2 instance, you can use it to load a plan.
 We use Java properties to pass options to the script which we don't want to hard-code.  These can be set using the `JAVA_OPTS` environment variable:
 
 ```
-> export JAVA_OPTS="-Dkey1=value1 -Dkey2=value2 ..."
+$ export JAVA_OPTS="-Dkey1=value1 -Dkey2=value2 ..."
 ```
 
 The following property is required:
@@ -131,7 +121,7 @@ The following properties are necessary depending on the environment or scenario:
 - `username`, the HTTP basic auth username
 - `password`, the HTTP basic auth password
 
-The property `signonUrl` and environment variables `USERNAME` and `PASSWORD` are required for scenarios authenticating with a signon application.
+The property `signonUrl` and environment variables `GATLING_USERNAME` and `GATLING_PASSWORD` are required for scenarios authenticating with a signon application.
 
 The following properties are optional:
 
@@ -158,7 +148,7 @@ while their data files live in the `src/test/resources` directory.
 
 2. **govuk.WhitehallPublishing**
 
-    **Requires:** `signonUrl` property. `USERNAME` and `PASSWORD` environment variables.
+    **Requires:** `signonUrl` property. `GATLING_USERNAME` and `GATLING_PASSWORD` environment variables.
 
     **Optional:** `schedule` property will schedule publication.  
     This value must be a timestamp in the format `yyyy-MM-ddTHH:mm` (eg. `2019-01-10T17:30`).
@@ -181,7 +171,7 @@ while their data files live in the `src/test/resources` directory.
 
 3. **govuk.WhitehallPublishingCollections**
 
-    **Requires:** `signonUrl` property. `USERNAME` and `PASSWORD` environment variables.
+    **Requires:** `signonUrl` property. `GATLING_USERNAME` and `GATLING_PASSWORD` environment variables.
 
     **Optional:** `documentSearches` property - How many document searches to make when adding to the collection.
 
@@ -195,7 +185,7 @@ while their data files live in the `src/test/resources` directory.
     - Force publishes
 
 
-## <a name="troubleshooting">4. Troubleshooting</a>
+## <a name="troubleshooting">5. Troubleshooting</a>
 
 1. **My requests are being rate limited**
 
@@ -204,11 +194,7 @@ while their data files live in the `src/test/resources` directory.
 2. **Authentication issues**
     - Ensure the right permissions have been set for your test user
     - Disable 2FA
-
-    You may need to use a different variable if `USERNAME` does not keep the user details you have set. Update this in [signon.scala](https://github.com/alphagov/govuk-load-testing/blob/master/src/test/scala/govuk/Signon.scala#L30
-    )
-
-    NOTE: `USERNAME` needs to be an email address
+    - `GATLING_USERNAME` needs to be an email address
 
 3. **No such file or directory**
 
