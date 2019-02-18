@@ -3,48 +3,118 @@ GOV.UK Load Testing
 
 Test plans for load testing GOV.UK frontend apps using [Gatling](https://gatling.io/).
 
-In this README, `$GATLING_HOME` is the directory where Gatling is installed to.
+### Table of Contents
+1. [Terminology](#terminology)
+2. [Methods](#methods)  
+  2.1 [Virtual Machine](#virtual-machine)  
+  2.2 [Rental of an enterprise Gatling Instance via AWS Marketplace](#aws-gatling)
+3. [Configuration Options](#configuration)
+4. [Simulation Plans](#plans)
+5. [Troubleshooting](#troubleshooting)
 
-For example, if you download version 3.0.0-RC4 of the Gatling bundle zip and extract it in your `~/Downloads` folder, `$GATLING_HOME` is `~/Downloads/gatling-charts-highcharts-bundle-3.0.0-RC4`
 
-- [Set-up](#set-up)
-- [How to run a test plan](#how-to-run-a-test-plan)
-- [List of test plans](#list-of-test-plans)
-- [Troubleshooting](#troubleshooting)
+# <a name="terminology">1. Terminology </a>
 
+1. `$GATLING_HOME`: In this README, `$GATLING_HOME` is the directory where Gatling is installed to.
+    For example, if you download version 3.0.0-RC4 of the Gatling bundle zip and extract it in your `~/Downloads` folder, `$GATLING_HOME` is `~/Downloads/gatling-charts-highcharts-bundle-3.0.0-RC4`
 
-Set up
-------
+2. simulation plan: a set of scenarios, where each scenario represents how a user will interact with the website.
 
+# <a name="methods">2. Methods</a>
+
+There are 2 main methods to install and run Gatling:
+  1. install and run Gatling on a virtual machine which can reside on your laptop or a AWS instance
+  2. rent an enterprise Gatling instance via AWS Marketplace
+
+## <a name="virtual-machine">2.1 Virtual Machine</a>
+
+### Installation Steps
+
+The installation steps are:
 1. Install a JDK, Gatling needs at least version 8
+2. [Download](https://gatling.io/download/) and extract Gatling, these test plans are written for version 3.
+3. Copy or symlink the `src/test/scala/govuk` directory of this repository to `$GATLING_HOME/user-files/simulations/`
+4. Copy or symlink the `src/test/resources/test-data` directory of this repository to `$GATLING_HOME/user-files/resources/`
 
-2. Download and extract Gatling, these test plans are written for version 3
+#### Tips
 
-3. Copy or symlink the `src/test/scala/govuk` directory in this repository to `$GATLING_HOME/user-files/simulations/`
+1. Setting up the symlink
+   NOTE: Don't copy the directory if you set up the symlink as this may throw errors
+    ```
+    $ ln -s /path/to/target /path/to/gatling/folder/
+    ```
 
-### Setting up the symlink
-NOTE: Don't copy the directory if you set up the symlink as this may throw errors
+    A symlink is required for Gatling to access the simulation files in this repo:
+    ```
+    $ ln -s /Users/username/govuk/govuk-load-testing/src/test/resources/test-data /Users/username/gatling/user-files/resources/
+    ```
+
+    Check the symlink has been set up correctly:
+    ```
+    $ ls -la /Users/username/gatling/user-files/simulation
+    lrwxr-xr-x  1 username  staff  65 14 Feb 13:54 /Users/username/gatling/user-files/simulation -> /Users/username/govuk/govuk-load-testing/src/test/scala/govuk/
+
+    ```
+
+2. In `$GATLING_HOME/user-files/simulations/test-plans` delete any duplicate .scala files as they should now come from the symlink.
+
+### Running a Plan
+
+In order to run a simulation plan, Gatling provides a wrapper script to compile and launch test plans in its `user-files` directory.
+
+You can run Gatling by:
+1. running the following command:
 ```
-$ ln -s /path/to/target /path/to/gatling/folder/
+$GATLING_HOME/bin/gatling.sh
 ```
 
-A symlink is required for Gatling to access the simulation files in this repo:
-```
-$ ln -s /Users/username/govuk/govuk-load-testing/src/test/resources/test-data /Users/username/gatling/user-files/resources/
-```
+2. selecting the simulation plan number that you wish to run.
+    ```
+    Choose a simulation number:
+         [0] computerdatabase.BasicSimulation
+         [1] computerdatabase.advanced.AdvancedSimulationStep01
+         [2] computerdatabase.advanced.AdvancedSimulationStep02
+         [3] computerdatabase.advanced.AdvancedSimulationStep03
+         [4] computerdatabase.advanced.AdvancedSimulationStep04
+         [5] computerdatabase.advanced.AdvancedSimulationStep05
+         [6] govuk.Frontend
+    ```
+    A description of relevant simulation plans available for the gov.uk website
+    is available [here](#plans)
 
-Check the symlink has been set up correctly:
-```
-$ ls -la /Users/username/gatling/user-files/simulation
-lrwxr-xr-x  1 username  staff  65 14 Feb 13:54 /Users/username/gatling/user-files/simulation -> /Users/username/govuk/govuk-load-testing/src/test/scala/govuk/
 
-```
+## <a name="aws-gatling">2.2 Rental of an enterprise Gatling Instance via AWS Marketplace</a>
 
-In `$GATLING_HOME/user-files/simulations/test-plans` delete any duplicate .scala files as they should now come from the symlink.
+**Note:** Gatling FrontLine instances cost $9/hour, so it's important to switch off the instance while it's not in use.
+
+### Launching a Gatling instance
+
+To launch a Gatling instance, follow the instructions below. You may find there is already an existing Gatling instance available in EC2,  in which case you can just start it without having to create a new one.
+
+1. First make sure you are [logged in to AWS and have switched your role to production](https://docs.publishing.service.gov.uk/manual/aws-console-access.html#header)
+1. Go to "AWS Marketplace Solutions" from the services list (you may need to switch region to N. Virginia).
+1. Select "Manage" on Gatling FrontLine, click on "Actions" and then "Launch new instance."
+1. Set the region to "EU (Ireland)" and click "Continue to Launch".
+1. Select your desired EC2 Instance Type (recommended `t2.2xlarge`).
+1. Choose the `vpc-07069e8dd026cc725` VPC, `subnet-00103e6927dd1fb36` subnet and `govuk_gatling_access` security group.
+1. Click "Launch" and you will be given a link to the EC2 instance.
+1. Find the Public DNS name for that instance and go to it in your browser. It should provide you with a wizard to complete the set up of the instance.
+1. You may find it useful to rename the instance in AWS to `gatling` so you can find it again easily.
+
+#### Running a Plan
+
+Once you have a Gatling FrontLine EC2 instance, you can use it to load a plan.
+
+1. Click on "Create" at the top left to create your plan.
+1. Give it a name, and choose the classname that corresponds to the test plan class you want. For example, `govuk.Frontend` for [Frontend.scala](src/test/resources/scala/Frontend.scala). See this [section](#plans) for a list of plans.
+1. Click next and choose "Build from sources" (should be the default option). Enter `git clone https://github.com/alphagov/govuk-load-testing.git` into the repository command box, choose `SBT Project` in the build command drop down and click next.
+1. If you're only using this one instance, choose the "Local" pool with a weight of 100%.
+1. Click on "More options" and here you can enter the `JAVA_OPTS` value in the second box. For example, to use 100 workers, you would enter `-Dworkers=100`. Please see [section](#configuration) for further configuration options.
+1. Now you can click save and your plan should appear in the list. Click the play button to build it.
+1. Once your plan has built, it will go ahead and run it for you. You can click on the icon of a graph to view live updating results from the load test.
 
 
-How to run a test plan
-----------------------
+## <a name="configuration">3. Configuration Options</a>
 
 We use Java properties to pass options to the script which we don't want to hard-code.  These can be set using the `JAVA_OPTS` environment variable:
 
@@ -71,156 +141,104 @@ The following properties are optional:
 - `ramp` (default: 0), the duration, in seconds, over which the workers are started
 - `bust` (default: false), whether to pass a unique cache-busting string with every request or not
 
-These properties can be set using the `JAVA_OPTS` environment variable:
+## <a name="plans">4. Simulation Plans </a>
+
+The simulation plans for gov.uk are located in the `src/test/scala` directory of this repository
+while their data files live in the `src/test/resources` directory.
+
+1. **govuk.Frontend**
+
+    **Data files:** paths.csv
+
+    **Properties:** `factor` (default: 1), the multiplier to apply to the amount of desired traffic
+
+    For an entry `base_path,hits`, each worker requests `base_path` `ceil(hits * factor / workers)` times, with no delay between requests.  Each worker proceeds through the csv in order.
+
+    If you are having difficulty running the entire test plan on a single machine within your desired duration, try splitting up the data file and running multiple instances of Gatling simultaneously on different machines.
+
+2. **govuk.WhitehallPublishing**
+
+    **Requires:** `signonUrl` property. `USERNAME` and `PASSWORD` environment variables.
+
+    **Optional:** `schedule` property will schedule publication.  
+    This value must be a timestamp in the format `yyyy-MM-ddTHH:mm` (eg. `2019-01-10T17:30`).
+    The value must be at least 15 minutes before the test run as Whitehall enforces this rule for scheduled publishing.
 
 
-###  On a single machine
+    Example:
+      ```
+      $ export JAVA_OPTS="-DbaseUrl=https://whitehall-admin.staging.publishing.service.gov.uk/ -Dworkers=1 -DsignonUrl=https://signon.staging.publishing.service.gov.uk/"
+      ```
 
-Gatling provides a wrapper script to compile and launch test plans in its `user-files` directory:
+    Steps:
 
-```
-> $GATLING_HOME/bin/gatling.sh
-GATLING_HOME is set to /Users/michaelswalker/Downloads/gatling-charts-highcharts-bundle-3.0.0-RC4
-Choose a simulation number:
-     [0] computerdatabase.BasicSimulation
-     [1] computerdatabase.advanced.AdvancedSimulationStep01
-     [2] computerdatabase.advanced.AdvancedSimulationStep02
-     [3] computerdatabase.advanced.AdvancedSimulationStep03
-     [4] computerdatabase.advanced.AdvancedSimulationStep04
-     [5] computerdatabase.advanced.AdvancedSimulationStep05
-     [6] govuk.Frontend
-```
-
-"computerdatabase" is a collection of example test plans for http://computer-database.gatling.io
+    - Authenticates with signon
+    - Drafts a publication
+    - Attaches an HTML attachment
+    - Tags to taxonomy
+    - Force publishes or force schedules
 
 
-### On AWS
+3. **govuk.WhitehallPublishingCollections**
 
-First make sure you are [logged in to AWS and have switched your role to production](https://docs.publishing.service.gov.uk/manual/aws-console-access.html#header).
+    **Requires:** `signonUrl` property. `USERNAME` and `PASSWORD` environment variables.
 
-#### Launching an instance
+    **Optional:** `documentSearches` property - How many document searches to make when adding to the collection.
 
-To launch a Gatling instance, follow the instructions below. You may find there is already an existing Gatling instance available in EC2,  in which case you can just start it without having to create a new one.
+    Steps:
 
-1. Go to "AWS Marketplace Solutions" from the services list (you may need to switch region to N. Virginia).
-1. Select "Manage" on Gatling FrontLine, click on "Actions" and then "Launch new instance."
-1. Set the region to "EU (Ireland)" and click "Continue to Launch".
-1. Select your desired EC2 Instance Type (recommended `t2.2xlarge`).
-1. Choose the `vpc-07069e8dd026cc725` VPC, `subnet-00103e6927dd1fb36` subnet and `govuk_gatling_access` security group.
-1. Click "Launch" and you will be given a link to the EC2 instance.
-1. Find the Public DNS name for that instance and go to it in your browser. It should provide you with a wizard to complete the set up of the instance.
-1. You may find it useful to rename the instance in AWS to `gatling` so you can find it again easily.
-
-> **Note:** Gatling FrontLine instances cost $9/hour, so it's important to switch off the instance while it's not in use.
-
-#### Loading a plan
-
-Once you have a Gatling FrontLine EC2 instance, you can use it to load a plan.
-
-1. Click on "Create" at the top left to create your plan.
-1. Give it a name, and choose the classname that corresponds to the test plan class you want. For example, `govuk.Frontend` for [Frontend.scala](src/test/resources/scala/Frontend.scala). See below for the list of plans.
-1. Click next and choose "Build from sources" (should be the default option). Enter `git clone https://github.com/alphagov/govuk-load-testing.git` into the repository command box, choose `SBT Project` in the build command drop down and click next.
-1. If you're only using this one instance, choose the "Local" pool with a weight of 100%.
-1. Click on "More options" and here you can enter the `JAVA_OPTS` value in the second box. For example, to use 100 workers, you would enter `-Dworkers=100`. Please see the other parts of this documentation for all the parameters.
-1. Now you can click save and your plan should appear in the list. Click the play button to build it.
-1. Once your plan has built, it will go ahead and run it for you. You can click on the icon of a graph to view live updating results from the load test.
-
-List of test plans
-------------------
-
-Tets plans live in the `src/test/scala` directory.  Their data files live in the `src/test/resources` directory.
-
-### govuk.Frontend
-
-**Data files:** paths.csv
-
-**Properties:** `factor` (default: 1), the multiplier to apply to the amount of desired traffic
-
-For an entry `base_path,hits`, each worker requests `base_path` `ceil(hits * factor / workers)` times, with no delay between requests.  Each worker proceeds through the csv in order.
-
-If you are having difficulty running the entire test plan on a single machine within your desired duration, try splitting up the data file and [running multiple instances of Gatling simultaneously on different machines](#across-multiple-machines).
-
-### govuk.WhitehallPublishing
-
-**Requires:** `signonUrl` property. `USERNAME` and `PASSWORD` environment variables.
-
-**Optional:** `schedule` property will schedule publication.  
-This value must be a timestamp in the format `yyyy-MM-ddTHH:mm` (eg. `2019-01-10T17:30`).
-The value must be at least 15 minutes before the test run as Whitehall enforces this rule for scheduled publishing.
+    - Authenticates with signon
+    - Drafts a collection
+    - Searches for Gatling Test publications
+    - Adds search results to collection
+    - Tags to taxonomy
+    - Force publishes
 
 
-Example:
-```
-$ export JAVA_OPTS="-DbaseUrl=https://whitehall-admin.staging.publishing.service.gov.uk/ -Dworkers=1 -DsignonUrl=https://signon.staging.publishing.service.gov.uk/"
-```
+## <a name="troubleshooting">4. Troubleshooting</a>
 
-Steps:
+1. **My requests are being rate limited**
 
-- Authenticates with signon
-- Drafts a publication
-- Attaches an HTML attachment
-- Tags to taxonomy
-- Force publishes or force schedules
+    Set the `rateLimitToken` property, and make sure the token is valid for the environment you're testing.  These tokens live in the encrypted hieradata in [govuk-secrets](https://github.com/alphagov/govuk-secrets).
 
+2. **Authentication issues**
+    - Ensure the right permissions have been set for your test user
+    - Disable 2FA
 
-### govuk.WhitehallPublishingCollections
+    You may need to use a different variable if `USERNAME` does not keep the user details you have set. Update this in [signon.scala](https://github.com/alphagov/govuk-load-testing/blob/master/src/test/scala/govuk/Signon.scala#L30
+    )
 
-**Requires:** `signonUrl` property. `USERNAME` and `PASSWORD` environment variables.
+    NOTE: `USERNAME` needs to be an email address
 
-**Optional:** `documentSearches` property - How many document searches to make when adding to the collection.
+3. **No such file or directory**
 
-Steps:
+    If you see an error such as:
+    ```
+    15:16:48.524 [ERROR] i.g.a.Gatling$ - Run crashed
+    java.io.FileNotFoundException: test-data/lorem-ipsum.txt (No such file or directory)
+    ```
 
-- Authenticates with signon
-- Drafts a collection
-- Searches for Gatling Test publications
-- Adds search results to collection
-- Tags to taxonomy
-- Force publishes
+    Ensure you run gatling in this repo, `govuk-load-testing`:
+    ```
+    export GATLING_HOME=/Users/username/gatling/
+    $GATLING_HOME/bin/gatling.sh
+    ```
 
+4. **Exit scenario**
 
-Troubleshooting
----------------
+    This may be useful to remove workers that fail at any step:
+    ```
+    .exec{
+      //CODE
+    }.exitHereIfFailed
+    ```
 
-### My requests are being rate limited
+5. **Output html**
 
-Set the `rateLimitToken` property, and make sure the token is valid for the environment you're testing.  These tokens live in the encrypted hieradata in [govuk-secrets](https://github.com/alphagov/govuk-secrets).
-
-### Authentication issues
-- Ensure the right permissions have been set for your test user
-- Disable 2FA
-
-You may need to use a different variable if `USERNAME` does not keep the user details you have set. Update this in [signon.scala](https://github.com/alphagov/govuk-load-testing/blob/master/src/test/scala/govuk/Signon.scala#L30
-)
-
-NOTE: `USERNAME` needs to be an email address
-
-### No such file or directory
-If you see an error such as:
-```
-15:16:48.524 [ERROR] i.g.a.Gatling$ - Run crashed
-java.io.FileNotFoundException: test-data/lorem-ipsum.txt (No such file or directory)
-```
-
-Ensure you run gatling in this repo, `govuk-load-testing`:
-```
-export GATLING_HOME=/Users/username/gatling/
-$GATLING_HOME/bin/gatling.sh
-```
-
-### Exit scenario
-This may be useful to remove workers that fail at any step:
-```
-.exec{
-  //CODE
-}.exitHereIfFailed
-```
-
-### Output html
-```
-.exec(session => {
-  val response = session("BODY").as[String]
-  println(s"Response body: \n$response")
-  session
-})
-```
+    ```
+    .exec(session => {
+      val response = session("BODY").as[String]
+      println(s"Response body: \n$response")
+      session
+    })
+    ```
