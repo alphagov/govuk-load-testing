@@ -23,6 +23,7 @@ object Signon {
         css("input[name=authenticity_token]", "value").saveAs("signonAuthToken")
       )
   )
+  .exitHereIfFailed
   .exec(
     http("Authenticate in signon")
       .post(signonUrl)
@@ -31,10 +32,12 @@ object Signon {
       .formParam("user[password]", sys.env.get("PASSWORD").get)
       .check(status.is(200))
   )
+  .exitHereIfFailed
   .exec(
     http("View signon account")
       .get(signonBaseUrl)
       .check(status.is(200))
       .check(regex("Your applications").exists)
   )
+  .exitHereIfFailed
 }

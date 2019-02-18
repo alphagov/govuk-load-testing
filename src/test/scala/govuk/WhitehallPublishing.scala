@@ -34,6 +34,7 @@ class WhitehallPublishing extends Simulation {
   val scn =
     scenario("Publishing Whitehall guidance")
       .exec(Signon.authenticate)
+      .exitHereIfFailed
       .exec(
         http("Draft a new publication")
           .get("/government/admin/publications/new")
@@ -43,6 +44,7 @@ class WhitehallPublishing extends Simulation {
             css("input[name=authenticity_token]", "value").saveAs("authToken")
           )
       )
+      .exitHereIfFailed
       .exec(session => {
         val randomInt = Random.nextInt(Integer.MAX_VALUE)
         val publicationTitle = s"Gatling test publication $randomInt"
@@ -78,6 +80,7 @@ class WhitehallPublishing extends Simulation {
           .check(status.is(200))
           .check(css(".form-actions span.or_cancel a", "href").saveAs("publicationLink"))
       )
+      .exitHereIfFailed
       .exec(
         http("Draft overview")
           .get("""${publicationLink}""")
@@ -99,6 +102,7 @@ class WhitehallPublishing extends Simulation {
             css(".force-publish-form input[name=authenticity_token]", "value").saveAs("forcePublishAuthToken")
           })
       )
+      .exitHereIfFailed
       .exec(
         http("Edit draft")
           .get("""${editDraftLink}""")
@@ -108,6 +112,7 @@ class WhitehallPublishing extends Simulation {
             css(".nav-tabs li:nth-of-type(2) a", "href").saveAs("attachmentsLink")
           )
       )
+      .exitHereIfFailed
       .exec(
         http("Visit HTML attachment form")
           .get("""${attachmentsLink}/new?type=html""")
@@ -117,6 +122,7 @@ class WhitehallPublishing extends Simulation {
             css("#new_attachment input[name=authenticity_token]", "value").saveAs("attachmentAuthToken")
           )
       )
+      .exitHereIfFailed
       .exec(
         http("Add HTML attachment")
           .post("""${attachmentFormAction}""")
@@ -129,7 +135,9 @@ class WhitehallPublishing extends Simulation {
           )
           .check(status.is(200))
       )
+      .exitHereIfFailed
       .exec(Taxonomy.tag)
+      .exitHereIfFailed
       .doIfOrElse(scheduled) {
         exec(
           http("Force schedule publication")
@@ -145,6 +153,7 @@ class WhitehallPublishing extends Simulation {
             .check(status.is(200))
             .check(regex("Scheduled for publication").exists)
         )
+      .exitHereIfFailed
 
       }{
         exec(
@@ -155,12 +164,14 @@ class WhitehallPublishing extends Simulation {
             .formParam("commit", "Force publish")
             .check(status.is(200))
         )
+        .exitHereIfFailed
         .exec(
           http("Visit publication overview")
             .get("""${publicationLink}""")
             .check(status.is(200))
             .check(regex("Force published: Gatling load test run").exists)
         )
+        .exitHereIfFailed
       }
 
   run(scn)
