@@ -163,7 +163,7 @@ class WhitehallPublishing extends Simulation {
             http("Visit publication overview")
             .get("""${publicationLink}""")
             .check(status.is(200))
-            .check(regex("Scheduled for publication boyo").exists)
+            .check(regex("Scheduled for publication").exists)
           )
         }
       }{
