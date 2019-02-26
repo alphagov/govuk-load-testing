@@ -154,6 +154,9 @@ while their data files live in the `src/test/resources` directory.
     This value must be a timestamp in the format `yyyy-MM-ddTHH:mm` (eg. `2019-01-10T17:30`).
     The value must be at least 15 minutes before the test run as Whitehall enforces this rule for scheduled publishing.
 
+    **Optional:** `maxTryAttempt` property will set how many times each step will be attempting before logging as a failure.
+    This is to stimulate a user refreshing or reattempting after receiving an error response.
+    If nothing is passed, it will default to 1.
 
     Example:
       ```

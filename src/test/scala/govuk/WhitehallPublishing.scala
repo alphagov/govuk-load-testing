@@ -21,6 +21,7 @@ class WhitehallPublishing extends Simulation {
   val lipsum = new LoremIpsum()
   val now = LocalDateTime.now()
   val format = DateTimeFormatter.ISO_LOCAL_DATE_TIME // "yyyy-MM-ddTHH:mm" // eg. 2019-01-11T17:00
+  val maxTryAttempt = sys.props.getOrElse("maxTryAttempt", "1").toInt
   val schedule = sys.props.getOrElse("schedule", now.format(format))
   //val format = new java.text.SimpleDateFormat(formatStr)
   val scheduledAt = LocalDateTime.from(format.parse(schedule))
@@ -31,18 +32,24 @@ class WhitehallPublishing extends Simulation {
     println(s"Publishing scheduled for $scheduledAt")
   }
 
+  println(s"Steps will be attemped $maxTryAttempt times")
+
   val scn =
     scenario("Publishing Whitehall guidance")
-      .exec(Signon.authenticate)
-      .exec(
-        http("Draft a new publication")
-          .get("/government/admin/publications/new")
-          .check(status.is(200))
-          .check(regex("Create publication").exists)
-          .check(
-            css("input[name=authenticity_token]", "value").saveAs("authToken")
+      .tryMax(maxTryAttempt) {
+        exec(Signon.authenticate)
+      }.exitHereIfFailed //If signon has failed all subsequents steps will also fail
+      .tryMax(maxTryAttempt) {
+        exec(
+          http("Draft a new publication")
+            .get("/government/admin/publications/new")
+            .check(status.is(200))
+            .check(regex("Create publication").exists)
+            .check(
+              css("input[name=authenticity_token]", "value").saveAs("authToken")
           )
-      )
+        )
+      }
       .exec(session => {
         val randomInt = Random.nextInt(Integer.MAX_VALUE)
         val publicationTitle = s"Gatling test publication $randomInt"
@@ -71,96 +78,111 @@ class WhitehallPublishing extends Simulation {
           "baseParams"       -> baseParams
         )
       })
-      .exec(
-        http("Save a draft publication")
-          .post("/government/admin/publications")
-          .formParamSeq("${baseParams}")
-          .check(status.is(200))
-          .check(css(".form-actions span.or_cancel a", "href").saveAs("publicationLink"))
-      )
-      .exec(
-        http("Draft overview")
-          .get("""${publicationLink}""")
-          .check(status.is(200))
-          .check(
-            css(".taxonomy-topics a.btn-default", "href").saveAs("addTagsLink"),
-            css(".edition-view-edit-buttons a.btn-default", "href").saveAs("editDraftLink")
-          )
-          .check(checkIf(scheduled) {
-            css(".edition-sidebar .button_to:nth-of-type(1)", "action").saveAs("forceScheduleAction")
-          })
-          .check(checkIf(scheduled) {
-            css(".edition-sidebar .button_to:nth-of-type(1) input[name=authenticity_token]", "value").saveAs("forceScheduleAuthToken")
-          })
-          .check(checkIf(!scheduled) {
-            css(".force-publish-form", "action").saveAs("forcePublishAction")
-          })
-          .check(checkIf(!scheduled) {
-            css(".force-publish-form input[name=authenticity_token]", "value").saveAs("forcePublishAuthToken")
-          })
-      )
-      .exec(
-        http("Edit draft")
-          .get("""${editDraftLink}""")
-          .check(status.is(200))
-          .check(regex("Edit publication").exists)
-          .check(
-            css(".nav-tabs li:nth-of-type(2) a", "href").saveAs("attachmentsLink")
-          )
-      )
-      .exec(
-        http("Visit HTML attachment form")
-          .get("""${attachmentsLink}/new?type=html""")
-          .check(status.is(200))
-          .check(
-            css("#new_attachment", "action").saveAs("attachmentFormAction"),
-            css("#new_attachment input[name=authenticity_token]", "value").saveAs("attachmentAuthToken")
-          )
-      )
-      .exec(
-        http("Add HTML attachment")
-          .post("""${attachmentFormAction}""")
-          .formParam("authenticity_token", """${attachmentAuthToken}""")
-          .formParam("type", "html")
-          .formParam("attachment[title]", """${publicationTitle} attachment""")
-          .formParam(
-            "attachment[govspeak_content_attributes][body]",
-            s"""## Gatling test attachment\n\n${lipsum.text}"""
-          )
-          .check(status.is(200))
-      )
-      .exec(Taxonomy.tag)
-      .doIfOrElse(scheduled) {
+      .tryMax(maxTryAttempt) {
         exec(
-          http("Force schedule publication")
+          http("Save a draft publication")
+            .post("/government/admin/publications")
+            .formParamSeq("${baseParams}")
+            .check(status.is(200))
+            .check(css(".form-actions span.or_cancel a", "href").saveAs("publicationLink"))
+        )
+      }
+      .tryMax(maxTryAttempt) {
+        exec(
+          http("Draft overview")
+            .get("""${publicationLink}""")
+            .check(status.is(200))
+            .check(
+              css(".taxonomy-topics a.btn-default", "href").saveAs("addTagsLink"),
+              css(".edition-view-edit-buttons a.btn-default", "href").saveAs("editDraftLink")
+            )
+            .check(checkIf(scheduled) {
+              css(".edition-sidebar .button_to:nth-of-type(1)", "action").saveAs("forceScheduleAction")
+            })
+            .check(checkIf(scheduled) {
+              css(".edition-sidebar .button_to:nth-of-type(1) input[name=authenticity_token]", "value").saveAs("forceScheduleAuthToken")
+            })
+            .check(checkIf(!scheduled) {
+              css(".force-publish-form", "action").saveAs("forcePublishAction")
+            })
+            .check(checkIf(!scheduled) {
+              css(".force-publish-form input[name=authenticity_token]", "value").saveAs("forcePublishAuthToken")
+            })
+        )
+      }
+      .tryMax(maxTryAttempt) {
+        exec(
+          http("Edit draft")
+            .get("""${editDraftLink}""")
+            .check(status.is(200))
+            .check(regex("Edit publication").exists)
+            .check(
+              css(".nav-tabs li:nth-of-type(2) a", "href").saveAs("attachmentsLink")
+            )
+        )
+      }
+      .tryMax(maxTryAttempt) {
+        exec(
+          http("Visit HTML attachment form")
+            .get("""${attachmentsLink}/new?type=html""")
+            .check(status.is(200))
+            .check(
+              css("#new_attachment", "action").saveAs("attachmentFormAction"),
+              css("#new_attachment input[name=authenticity_token]", "value").saveAs("attachmentAuthToken")
+            )
+        )
+      }
+      .tryMax(maxTryAttempt) {
+        exec(
+          http("Add HTML attachment")
+            .post("""${attachmentFormAction}""")
+            .formParam("authenticity_token", """${attachmentAuthToken}""")
+            .formParam("type", "html")
+            .formParam("attachment[title]", """${publicationTitle} attachment""")
+            .formParam(
+              "attachment[govspeak_content_attributes][body]",
+              s"""## Gatling test attachment\n\n${lipsum.text}"""
+            )
+            .check(status.is(200))
+        )
+      }
+      .tryMax(maxTryAttempt) {
+        exec(Taxonomy.tag)
+      }
+      .doIfOrElse(scheduled) {
+        tryMax(maxTryAttempt) {
+          exec(
+            http("Force schedule publication")
             .post("""${forceScheduleAction}""")
             .formParam("authenticity_token", """${forceScheduleAuthToken}""")
             .formParam("reason", "Gatling load test run")
             .formParam("commit", "Force schedule")
             .check(status.is(200))
-        )
-        .exec(
-          http("Visit publication overview")
+          )
+          .exec(
+            http("Visit publication overview")
             .get("""${publicationLink}""")
             .check(status.is(200))
-            .check(regex("Scheduled for publication").exists)
-        )
-
+            .check(regex("Scheduled for publication boyo").exists)
+          )
+        }
       }{
-        exec(
-          http("Force publish publication")
-            .post("""${forcePublishAction}""")
-            .formParam("authenticity_token", """${forcePublishAuthToken}""")
-            .formParam("reason", "Gatling load test run")
-            .formParam("commit", "Force publish")
-            .check(status.is(200))
-        )
-        .exec(
-          http("Visit publication overview")
-            .get("""${publicationLink}""")
-            .check(status.is(200))
-            .check(regex("Force published: Gatling load test run").exists)
-        )
+        tryMax(maxTryAttempt) {
+          exec(
+            http("Force publish publication")
+              .post("""${forcePublishAction}""")
+              .formParam("authenticity_token", """${forcePublishAuthToken}""")
+              .formParam("reason", "Gatling load test run")
+              .formParam("commit", "Force publish")
+              .check(status.is(200))
+          )
+          .exec(
+            http("Visit publication overview")
+              .get("""${publicationLink}""")
+              .check(status.is(200))
+              .check(regex("Force published: Gatling load test run").exists)
+          )
+        }
       }
 
   run(scn)
