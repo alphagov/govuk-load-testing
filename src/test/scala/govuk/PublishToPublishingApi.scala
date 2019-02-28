@@ -54,11 +54,6 @@ class PublishToPublishingApi extends Simulation {
           .check(bodyString.saveAs("responseBody"))
           .check(status.is(200))
       )
-      .exec(session => {
-        val response = session("responseBody").as[String]
-        println(s"response:\n$response")
-        session
-      })
       .exec(
         http("PATCH links")
           .patch("/v2/links/${contentId}")
