@@ -35,10 +35,6 @@ The installation steps are:
 1. Clone this repository into your `~/govuk/` directory
 1. [Download](https://gatling.io/download/) and extract Gatling, these test plans are written for version 3
 1. Rename and move the extracted Gatling directory to `~/govuk/gatling` to make it available in `/var/govuk/gatling` in your Virtual Machine
-1. Symlink the `src/test/resources/test-data` directory of this repository to `$GATLING_HOME/user-files/resources/`
-  ```
-  $ ln -s ~/govuk/govuk-load-testing/src/test/resources/test-data ~/govuk/gatling/user-files/resources/
-  ```
 1. Set the needed environment variables:
   - `$ export 'JAVA_OPTS=<required-options>'` (see [Configuration Options](#configuration))
   - `$ export 'GATLING_USERNAME=<test-user-email>'`
@@ -54,20 +50,16 @@ In order to run a simulation plan, Gatling provides a wrapper script to compile 
 You can run Gatling by:
 1. running the following command:
   ```
-  $ $GATLING_HOME/bin/gatling.sh
+  $ $GATLING_HOME/bin/gatling.sh -sf src/test/scala
   ```
   **Note:** This command must be run from within `~/govuk/govuk-load-testing` (or `/var/govuk/govuk-load-testing` if you are using the Virtual Machine).
 
 2. selecting the simulation plan number that you wish to run.
   ```
   Choose a simulation number:
-      [0] computerdatabase.BasicSimulation
-      [1] computerdatabase.advanced.AdvancedSimulationStep01
-      [2] computerdatabase.advanced.AdvancedSimulationStep02
-      [3] computerdatabase.advanced.AdvancedSimulationStep03
-      [4] computerdatabase.advanced.AdvancedSimulationStep04
-      [5] computerdatabase.advanced.AdvancedSimulationStep05
-      [6] govuk.Frontend
+      [0] govuk.Frontend
+      [1] govuk.WhitehallPublishing
+      [2] govuk.WhitehallPublishingCollections
   ```
   A description of relevant simulation plans available for the gov.uk website
   is available [here](#plans)
