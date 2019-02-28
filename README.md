@@ -187,6 +187,7 @@ while their data files live in the `src/test/resources` directory.
     Steps:
 
     - Put content
+    - Patch links
     - Publish
 
 ## <a name="troubleshooting">5. Troubleshooting</a>

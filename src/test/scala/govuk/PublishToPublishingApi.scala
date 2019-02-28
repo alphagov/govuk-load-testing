@@ -23,6 +23,7 @@ class PublishToPublishingApi extends Simulation {
 
   val detailedGuideContentPath = dataDir + java.io.File.separatorChar + "publishing-api/detailed-guide-content.json"
   val publishPath = dataDir + java.io.File.separatorChar + "publishing-api/publish.json"
+  val linksPath = dataDir + java.io.File.separatorChar + "publishing-api/links.json"
 
   val scn =
     scenario("Publishing to Publishing API")
@@ -58,12 +59,16 @@ class PublishToPublishingApi extends Simulation {
         println(s"response:\n$response")
         session
       })
-      // .exec(
-      //   http("PATCH links")
-      //     .patch("/v2/links")
-      //     .body(RawFileBody("/path/to/some/links.json")).asJson
-      //     .check(status.is(200))
-      // )
+      .exec(
+        http("PATCH links")
+          .patch("/v2/links/${contentId}")
+          .headers(Map(
+            "Authorization" -> bearerTokenHeaderValue,
+            "Content-type"  -> "application/json"
+          ))
+          .body(ElFileBody(linksPath)).asJson
+          .check(status.is(200))
+      )
       .exec(
         http("POST publish")
           .post("/v2/content/${contentId}/publish")
