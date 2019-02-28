@@ -9,7 +9,7 @@ import scala.concurrent.duration._
 import scala.util.Random
 
 abstract class Simulation extends scenario.Simulation {
-  val dataDir = sys.props.getOrElse("dataDir", "test-data")
+  val dataDir = sys.props.getOrElse("dataDir", "src/test/resources/test-data")
   val baseUrl = sys.props.get("baseUrl").get
   val username = sys.props.getOrElse("username", "")
   val password = sys.props.getOrElse("password", "")
