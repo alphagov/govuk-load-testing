@@ -180,6 +180,15 @@ while their data files live in the `src/test/resources` directory.
     - Force publishes
 
 
+4. **govuk.PublishToPublishingApi**
+
+    **Requires:** `BEARER_TOKEN` environment variables.
+
+    Steps:
+
+    - Put content
+    - Publish
+
 ## <a name="troubleshooting">5. Troubleshooting</a>
 
 1. **My requests are being rate limited**

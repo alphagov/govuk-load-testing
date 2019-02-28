@@ -22,11 +22,12 @@ class PublishToPublishingApi extends Simulation {
   val bearerTokenHeaderValue = s"Bearer $bearerToken"
 
   val detailedGuideContentPath = dataDir + java.io.File.separatorChar + "publishing-api/detailed-guide-content.json"
+  val publishPath = dataDir + java.io.File.separatorChar + "publishing-api/publish.json"
 
   val scn =
     scenario("Publishing to Publishing API")
       .exec(session => {
-        val basePath = s"/guidance/${lipsum.slug}"
+        val basePath = s"/guidance/${UUID.randomUUID()}"
         val contentId = UUID.randomUUID()
         val publicUpdatedAt = ZonedDateTime.now().format(
           DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX"))
@@ -57,19 +58,21 @@ class PublishToPublishingApi extends Simulation {
         println(s"response:\n$response")
         session
       })
-      /*
-      .exec(
-        http("PATCH links")
-          .patch("/v2/links")
-          .body(RawFileBody("/path/to/some/links.json")).asJson
-          .check(status.is(200))
-      )
+      // .exec(
+      //   http("PATCH links")
+      //     .patch("/v2/links")
+      //     .body(RawFileBody("/path/to/some/links.json")).asJson
+      //     .check(status.is(200))
+      // )
       .exec(
         http("POST publish")
-          .patch("/v2/publish")
-          .body(RawFileBody("/path/to/???.json")).asJson
+          .post("/v2/content/${contentId}/publish")
+          .headers(Map(
+            "Authorization" -> bearerTokenHeaderValue,
+            "Content-type"  -> "application/json"
+          ))
+          .body(ElFileBody(publishPath)).asJson
           .check(status.is(200))
       )
-      */
   run(scn)
 }
