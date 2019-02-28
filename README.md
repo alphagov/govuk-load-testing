@@ -125,7 +125,7 @@ The property `signonUrl` and environment variables `GATLING_USERNAME` and `GATLI
 
 The following properties are optional:
 
-- `dataDir` (default: "test-data"), the directory to look in for test data files
+- `dataDir` (default: "src/test/resources/test-data"), the directory to look in for test data files
 - `rateLimitToken` (default: no header sent), the value of the `Rate-Limit-Token` header
 - `workers` (default: 1), the number of threads making requests
 - `ramp` (default: 0), the duration, in seconds, over which the workers are started
