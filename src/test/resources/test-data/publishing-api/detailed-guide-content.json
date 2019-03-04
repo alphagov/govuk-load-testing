@@ -1,0 +1,31 @@
+{
+  "title":"${title}",
+  "locale":"en",
+  "publishing_app":"whitehall",
+  "redirects":[],
+  "update_type":"major",
+  "description":"${description}",
+  "details":{
+    "body":"${body}",
+    "change_history":[],
+    "emphasised_organisations":["${organisationId}"],
+    "political":false,
+    "government":{
+      "title":"2015 Conservative government",
+      "slug":"2015-conservative-government",
+      "current":true
+    },
+    "tags":{
+      "browse_pages":[],
+      "policies":[],
+      "topics":[]
+    }
+  },
+  "document_type":"detailed_guide",
+  "public_updated_at":"${publicUpdatedAt}",
+  "rendering_app":"government-frontend",
+  "schema_name":"detailed_guide",
+  "base_path":"${basePath}",
+  "routes":[{"path":"${basePath}","type":"exact"}],
+  "content_id":"${contentId}"
+}

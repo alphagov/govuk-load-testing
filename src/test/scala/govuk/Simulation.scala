@@ -27,13 +27,16 @@ abstract class Simulation extends scenario.Simulation {
     case (key, Some(value)) => key -> value
   }
 
-  val httpProtocol = http
+  var httpProtocol = http
     .baseUrl(baseUrl)
     .acceptHeader("text/html")
     .acceptEncodingHeader("gzip, deflate")
-    .basicAuth(username, password)
     .headers(extraHeaders)
     .disableCaching
+
+  if (!username.isEmpty && !password.isEmpty) {
+    httpProtocol = httpProtocol.basicAuth(username, password)
+  }
 
   def get(path: String, cachebust: String) =
     http(path)

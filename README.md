@@ -180,6 +180,37 @@ while their data files live in the `src/test/resources` directory.
     - Force publishes
 
 
+4. **govuk.PublishToPublishingApi**
+
+    **Requires:** `BEARER_TOKEN` environment variables.
+
+    **Note:** The Publishing API is not accessible from the outside, you'll
+    need to set up a proxy into our infrastructure to connect to it from
+    Gatling.
+
+    For example, for staging:
+
+    ```sh
+    $ ssh publishing-api-1.staging -CNL 8443:publishing-api.staging.publishing.service.gov.uk:443
+    ```
+
+    You'll then need to add the line
+    `127.0.0.1 publishing-api.staging.publishing.service.gov.uk` to
+    `/etc/hosts` to make sure the HTTPS server name matches.
+
+    Then you can set your `baseUrl` to
+    `https://publishing-api.staging.publishing.service.gov.uk:8443`.
+
+    Since the load testing is now limited by your SSH proxy, you may want to
+    increase the `ulimit` to a high number such as `ulimit -n 4096`. This means
+    SSH is able to cope with more open sockets.
+
+    Steps:
+
+    - Put content
+    - Patch links
+    - Publish
+
 ## <a name="troubleshooting">5. Troubleshooting</a>
 
 1. **My requests are being rate limited**
