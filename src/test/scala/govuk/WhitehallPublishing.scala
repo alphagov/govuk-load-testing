@@ -49,7 +49,7 @@ class WhitehallPublishing extends Simulation {
               css("input[name=authenticity_token]", "value").saveAs("authToken")
           )
         )
-      }
+      }.exitHereIfFailed
       .exec(session => {
         val randomInt = Random.nextInt(Integer.MAX_VALUE)
         val publicationTitle = s"Gatling test publication $randomInt"
@@ -86,7 +86,7 @@ class WhitehallPublishing extends Simulation {
             .check(status.is(200))
             .check(css(".form-actions span.or_cancel a", "href").saveAs("publicationLink"))
         )
-      }
+      }.exitHereIfFailed
       .tryMax(maxTryAttempt) {
         exec(
           http("Draft overview")
@@ -109,7 +109,7 @@ class WhitehallPublishing extends Simulation {
               css(".force-publish-form input[name=authenticity_token]", "value").saveAs("forcePublishAuthToken")
             })
         )
-      }
+      }.exitHereIfFailed
       .tryMax(maxTryAttempt) {
         exec(
           http("Edit draft")
@@ -120,7 +120,7 @@ class WhitehallPublishing extends Simulation {
               css(".nav-tabs li:nth-of-type(2) a", "href").saveAs("attachmentsLink")
             )
         )
-      }
+      }.exitHereIfFailed
       .tryMax(maxTryAttempt) {
         exec(
           http("Visit HTML attachment form")
@@ -131,7 +131,7 @@ class WhitehallPublishing extends Simulation {
               css("#new_attachment input[name=authenticity_token]", "value").saveAs("attachmentAuthToken")
             )
         )
-      }
+      }.exitHereIfFailed
       .tryMax(maxTryAttempt) {
         exec(
           http("Add HTML attachment")
@@ -145,10 +145,10 @@ class WhitehallPublishing extends Simulation {
             )
             .check(status.is(200))
         )
-      }
+      }.exitHereIfFailed
       .tryMax(maxTryAttempt) {
         exec(Taxonomy.tag)
-      }
+      }.exitHereIfFailed
       .doIfOrElse(scheduled) {
         tryMax(maxTryAttempt) {
           exec(
@@ -165,7 +165,7 @@ class WhitehallPublishing extends Simulation {
             .check(status.is(200))
             .check(regex("Scheduled for publication").exists)
           )
-        }
+        }.exitHereIfFailed
       }{
         tryMax(maxTryAttempt) {
           exec(
@@ -182,7 +182,7 @@ class WhitehallPublishing extends Simulation {
               .check(status.is(200))
               .check(regex("Force published: Gatling load test run").exists)
           )
-        }
+        }.exitHereIfFailed
       }
 
   run(scn)
