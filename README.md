@@ -76,12 +76,13 @@ To launch a Gatling instance, follow the instructions below. You may find there 
 1. First make sure you are [logged in to AWS and have switched your role to production](https://docs.publishing.service.gov.uk/manual/aws-console-access.html#header)
 1. Go to "AWS Marketplace Solutions" from the services list (you may need to switch region to N. Virginia).
 1. Select "Manage" on Gatling FrontLine, click on "Actions" and then "Launch new instance."
-1. Set the region to "EU (Ireland)" and click "Continue to Launch".
+1. Set the region to "eu-west-1" and click "Continue to Launch".
 1. Select your desired EC2 Instance Type (recommended `t2.2xlarge`).
 1. Choose the `vpc-07069e8dd026cc725` VPC, `subnet-00103e6927dd1fb36` subnet and `govuk_gatling_access` security group.
 1. Click "Launch" and you will be given a link to the EC2 instance.
 1. Find the Public DNS name for that instance and go to it in your browser. It should provide you with a wizard to complete the set up of the instance.
 1. You may find it useful to rename the instance in AWS to `gatling` so you can find it again easily.
+1. If running the test cross-environment (e.g. running a load test in staging from a production EC2 instance), edit the `govuk_cache_external_elb_access` security group in the environment you are testing to permit access on port 443 from the public IP address of your Gatling EC2 instance.
 
 #### Running a Plan
 
