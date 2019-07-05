@@ -6,8 +6,9 @@ Test plans for load testing GOV.UK frontend apps using [Gatling](https://gatling
 ### Table of Contents
 1. [Terminology](#terminology)
 2. [Methods](#methods)  
-  2.1 [Virtual Machine](#virtual-machine)  
-  2.2 [Rental of an enterprise Gatling Instance via AWS Marketplace](#aws-gatling)
+  2.1 [GOV.UK Gatling](#govuk-gatling)   
+  2.2 [Virtual Machine](#virtual-machine)  
+  2.3 [Rental of an enterprise Gatling Instance via AWS Marketplace](#aws-gatling)
 3. [Configuration Options](#configuration)
 4. [Simulation Plans](#plans)
 5. [Troubleshooting](#troubleshooting)
@@ -22,11 +23,65 @@ Test plans for load testing GOV.UK frontend apps using [Gatling](https://gatling
 
 # <a name="methods">2. Methods</a>
 
-There are 2 main methods to install and run Gatling:
-  1. install and run Gatling on a virtual machine which can reside on your laptop or a AWS instance
-  2. rent an enterprise Gatling instance via AWS Marketplace
+There are 3 main methods to install and run Gatling:
+  1. [terraform a gatling instance using GOV.UK tools and run Gatling]((#govuk-gatling)
+  2. [install and run Gatling on a virtual machine which can reside on your laptop or a AWS instance](#virtual-machine)
+  3. [rent an enterprise Gatling instance via AWS Marketplace](#aws-gatling)
 
-## <a name="virtual-machine">2.1 Virtual Machine</a>
+## <a name="govuk-gatling">2.1 GOV.UK Gatling</a>
+
+### Provision GOV.UK Gatling
+
+The provisioning steps are:
+1. provisioning a GOV.UK Gatling by applying the project in `app-gatling` of
+[govuk-aws](https://github.com/alphagov/govuk-aws) in the
+environment that you want to do the load testing. You should use the `govuk` stack. Further information can be found [here](https://github.com/alphagov/govuk-aws) but in general you should run:
+```
+tools/build-terraform-project.sh -c apply -p app-gatling -d ../govuk-aws-data/data -e <environment> -s govuk
+```
+where `<environment>` is the GOV.UK environment you want to test in, e.g. `integration`
+
+### Running a Plan
+
+You can run a Gatling plan by:
+1. sshing into the Gatling instance via the jumpbox of the environment and finding
+the gatling instance by running `govuk_node_list -c gatling`
+1. once you are in the Gatling instance, change user the `gatling` user by running
+   ```
+   sudo su
+   su gatling
+   cd ~
+   ```
+1. go to the `govuk-load-testing` directory that has already been created:
+   ```
+   cd govuk-load-testing
+   ```
+1. export the Gatling environment variables suitable, further information in
+[configuration](#configuration).
+1. run Gatling:
+   ```
+     $ /usr/local/bin/gatling/bin/gatling.sh -sf src/test/scala
+   ```
+1. selecting the simulation plan number that you wish to run.
+    ```
+    Choose a simulation number:
+        [0] govuk.Frontend
+        [1] govuk.WhitehallPublishing
+        [2] govuk.WhitehallPublishingCollections
+    ```
+    A description of relevant simulation plans available for the gov.uk website
+    is available [here](#plans)
+1. Once Gatling has finished, you can browse from the office network to the GOV.UK Gatling webpage with URL: `https://gatling.<environment>.govuk.digital`
+where `environment` is the GOV.UK environment that you are provisioned to.
+This website will provide an index of all Gatling runs made on that GOV.UK Gatling since provisioning and you can view the results of a particular run.
+
+### De-provision GOV.UK Gatling
+You should de-provisioning Gatling after you have finished for the day to save money. In general, you would run:
+```
+tools/build-terraform-project.sh -c destroy -p app-gatling -d ../govuk-aws-data/data -e <environment> -s govuk
+```
+
+## <a name="virtual-machine">2.2 Virtual Machine</a>
 
 ### Installation Steps
 
@@ -65,7 +120,7 @@ You can run Gatling by:
   is available [here](#plans)
 
 
-## <a name="aws-gatling">2.2 Rental of an enterprise Gatling Instance via AWS Marketplace</a>
+## <a name="aws-gatling">2.3 Rental of an enterprise Gatling Instance via AWS Marketplace</a>
 
 **Note:** Gatling FrontLine instances cost $9/hour, so it's important to switch off the instance while it's not in use.
 
