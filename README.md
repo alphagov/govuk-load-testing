@@ -24,7 +24,7 @@ Test plans for load testing GOV.UK frontend apps using [Gatling](https://gatling
 # <a name="methods">2. Methods</a>
 
 There are 3 main methods to install and run Gatling:
-  1. [terraform a gatling instance using GOV.UK tools and run Gatling]((#govuk-gatling)
+  1. [terraform a gatling instance using GOV.UK tools and run Gatling](#govuk-gatling)
   2. [install and run Gatling on a virtual machine which can reside on your laptop or a AWS instance](#virtual-machine)
   3. [rent an enterprise Gatling instance via AWS Marketplace](#aws-gatling)
 
