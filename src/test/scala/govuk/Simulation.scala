@@ -32,6 +32,7 @@ abstract class Simulation extends scenario.Simulation {
     .acceptHeader("text/html")
     .acceptEncodingHeader("gzip, deflate")
     .headers(extraHeaders)
+    .userAgentHeader("GOV.UK Gatling")
     .disableCaching
 
   if (!username.isEmpty && !password.isEmpty) {
