@@ -41,19 +41,24 @@ class Generator
   end
 
   def write_paths
-    headers = ['base_path', 'hits']
+    paths = %w[questions results email-signup]
+    headers = %w[base_path hits]
+
     CSV.open("#{base_path.delete('\/')}_paths.csv", "wb", write_headers: true, headers: headers) do |csv|
       chosen_values.each do |vs|
-        query_string = "#{base_path}/questions?#{vs.to_query('c')}"
-        csv << [query_string, 1]
+        paths.each do |path|
+          query_string = "#{base_path}/#{path}?#{vs.to_query('c')}"
+          csv << [query_string, 1]
+        end
+
+        query_string = "#{base_path}?#{vs.to_query('c')}"
+
         questions.length.times do |page_number|
           csv << ["#{query_string}&page=#{page_number + 1}", 1]
         end
         cache_bust.times do
           csv << ["#{query_string}&cache_bust=#{SecureRandom.uuid}", 1]
         end
-        csv << ["#{base_path}/results?#{vs.to_query('c')}", 1]
-        csv << ["#{base_path}/email-signup?#{vs.to_query('c')}", 1]
       end
     end
   end
