@@ -53,6 +53,7 @@ class Generator
           csv << ["#{query_string}&cache_bust=#{SecureRandom.uuid}", 1]
         end
         csv << ["#{base_path}/results?#{vs.to_query('c')}", 1]
+        csv << ["#{base_path}/email-signup?#{vs.to_query('c')}", 1]
       end
     end
   end
