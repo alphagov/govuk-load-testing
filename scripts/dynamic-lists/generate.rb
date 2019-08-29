@@ -51,7 +51,7 @@ class Generator
           csv << [query_string, 1]
         end
 
-        query_string = "#{base_path}?#{vs.to_query('c')}"
+        query_string = "#{base_path}/questions?#{vs.to_query('c')}"
 
         questions.length.times do |page_number|
           csv << ["#{query_string}&page=#{page_number + 1}", 1]
