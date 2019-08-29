@@ -44,7 +44,7 @@ class Generator
     headers = ['base_path', 'hits']
     CSV.open("#{base_path.delete('\/')}_paths.csv", "wb", write_headers: true, headers: headers) do |csv|
       chosen_values.each do |vs|
-        query_string = "#{base_path}?#{vs.to_query('c')}"
+        query_string = "#{base_path}/questions?#{vs.to_query('c')}"
         csv << [query_string, 1]
         questions.length.times do |page_number|
           csv << ["#{query_string}&page=#{page_number + 1}", 1]
