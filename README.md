@@ -275,6 +275,14 @@ while their data files live in the `src/test/resources` directory.
 
     For an entry `base_path,hits`, each worker requests `base_path` `ceil(hits * factor / workers)` times, with no delay between requests.  Each worker proceeds through the csv in order.
 
+6. **govuk.DynamicLists**
+
+    **Data files:** get-ready-brexit-check_paths.csv
+
+    **Properties:** `factor` (default: 1), the multiplier to apply to the amount of desired traffic
+
+    For an entry `base_path,hits`, each worker requests `base_path` `ceil(hits * factor / workers)` times, with no delay between requests.  Each worker proceeds through the csv in order.
+
 ## <a name="troubleshooting">5. Troubleshooting</a>
 
 1. **My requests are being rate limited**
