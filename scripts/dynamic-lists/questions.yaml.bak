@@ -1,0 +1,93 @@
+---
+questions:
+  - key: nationality
+    question_type: single
+    question: 'What nationality are you?'
+    options:
+      - label: UK
+        value: nationality-uk
+      - label: EU
+        value: nationality-eu
+      - label: Rest of world
+        value: nationality-row
+
+  - key: living
+    question_type: single
+    question: 'Where do you live?'
+    options:
+      - label: UK
+        value: living-uk
+      - label: EU
+        value: living-eu
+      - label: Rest of world
+        value: living-row
+
+  - key: employment
+    question_type: multiple
+    question: 'What do you do?'
+    hint_title: 'If none apply click next'
+    options:
+      - label: "Work in the UK"
+        value: working-uk
+      - label: "Study in the UK"
+        value: studying-uk
+      - label: "Work in the EU"
+        value: working-eu
+      - label: "Study in the EU"
+        value: studying-eu
+
+  - key: drive-in-eu
+    question_type: single
+    question: Do you drive in the EU using a UK licence?
+    criteria: "nationality-uk && living-eu"
+    options:
+      - label: "Yes"
+        value: living-driving-eu
+      - label: "No"
+        value: living-driving-eu-no
+
+  - key: travelling
+    question_type: single_wrapped
+    question: 'Do you plan to travel after 31 October 2019?'
+    options:
+      - label: "Yes"
+        value: travelling
+        options:
+          - label: To the UK
+            value: visiting-uk
+          - label: To the EU
+            value: visiting-eu
+          - label: To the rest of the world
+            value: visiting-row
+      - label: "No"
+        value: travelling-no
+
+  - key: activities
+    criteria: "(nationality-uk && visiting-eu) || visiting-uk"
+    question_type: multiple
+    question: 'Are you planning to do any of the following?'
+    options:
+      - label: Bring your pet
+        value: visiting-bring-pet
+      - label: Drive
+        value: visiting-driving
+
+  - key: returning
+    criteria: "nationality-uk && (living-eu || living-row)"
+    question_type: single
+    question: 'Are you planning to move back to the UK?'
+    options:
+      - label: "Yes"
+        value: return-to-uk
+      - label: "No"
+        value: return-to-uk-no
+
+  - key: join-family-uk
+    question_type: single
+    question: Do you plan to join an EU family member in the UK?
+    criteria: "(nationality-eu || nationality-row) && (living-eu || living-row)"
+    options:
+      - label: "Yes"
+        value: join-family-uk-yes
+      - label: "No"
+        value: join-family-uk-no
