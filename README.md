@@ -178,6 +178,7 @@ The following properties are optional:
 - `workers` (default: 1), the number of threads making requests
 - `ramp` (default: 0), the duration, in seconds, over which the workers are started
 - `bust` (default: false), whether to pass a unique cache-busting string with every request or not
+- `maxTime` (default: 3600), the longest a test can run, defaulted to 1 hour
 
 ## <a name="plans">4. Simulation Plans </a>
 
