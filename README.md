@@ -112,9 +112,12 @@ You can run Gatling by:
 2. selecting the simulation plan number that you wish to run.
   ```
   Choose a simulation number:
-      [0] govuk.Frontend
-      [1] govuk.WhitehallPublishing
-      [2] govuk.WhitehallPublishingCollections
+      [0] govuk.BusinessReadinessFinder
+      [1] govuk.DynamicLists
+      [2] govuk.Frontend
+      [3] govuk.PublishToPublishingApi
+      [4] govuk.WhitehallPublishing
+      [5] govuk.WhitehallPublishingCollections
   ```
   A description of relevant simulation plans available for the gov.uk website
   is available [here](#plans)
@@ -185,7 +188,24 @@ The following properties are optional:
 The simulation plans for gov.uk are located in the `src/test/scala` directory of this repository
 while their data files live in the `src/test/resources` directory.
 
-1. **govuk.Frontend**
+1. **govuk.BusinessReadinessFinder**
+
+    **Data files:** business-readiness-paths.csv
+
+    **Properties:** `factor` (default: 1), the multiplier to apply to the amount of desired traffic
+
+    For an entry `base_path,hits`, each worker requests `base_path` `ceil(hits * factor / workers)` times, with no delay between requests.  Each worker proceeds through the csv in order.
+
+2. **govuk.DynamicLists**
+
+    **Data files:** get-ready-brexit-check_paths.csv
+
+    **Optional:** `factor` (default: 1), the multiplier to apply to the amount of desired traffic
+    For an entry `base_path,hits`, each worker requests `base_path` `ceil(hits * factor / workers)` times, with no delay between requests.  Each worker proceeds through the csv in order.
+
+    **Optional:** `duration` (default: 0), if set the test will last for the given number of seconds. Any workers that have not started or completed will be halted at this point. Conversely, any workers that finish ahead of this point will be restarted to ensure the test lasts for the given time.
+
+3. **govuk.Frontend**
 
     **Data files:** paths.csv
 
@@ -195,7 +215,38 @@ while their data files live in the `src/test/resources` directory.
 
     If you are having difficulty running the entire test plan on a single machine within your desired duration, try splitting up the data file and running multiple instances of Gatling simultaneously on different machines.
 
-2. **govuk.WhitehallPublishing**
+  4. **govuk.PublishToPublishingApi**
+
+      **Requires:** `BEARER_TOKEN` environment variables.
+
+      **Note:** The Publishing API is not accessible from the outside, you'll
+      need to set up a proxy into our infrastructure to connect to it from
+      Gatling.
+
+      For example, for staging:
+
+      ```sh
+      $ ssh publishing-api-1.staging -CNL 8443:publishing-api.staging.publishing.service.gov.uk:443
+      ```
+
+      You'll then need to add the line
+      `127.0.0.1 publishing-api.staging.publishing.service.gov.uk` to
+      `/etc/hosts` to make sure the HTTPS server name matches.
+
+      Then you can set your `baseUrl` to
+      `https://publishing-api.staging.publishing.service.gov.uk:8443`.
+
+      Since the load testing is now limited by your SSH proxy, you may want to
+      increase the `ulimit` to a high number such as `ulimit -n 4096`. This means
+      SSH is able to cope with more open sockets.
+
+      Steps:
+
+      - Put content
+      - Patch links
+      - Publish
+
+5. **govuk.WhitehallPublishing**
 
     **Requires:** `signonUrl` property. `GATLING_USERNAME` and `GATLING_PASSWORD` environment variables.
 
@@ -221,7 +272,7 @@ while their data files live in the `src/test/resources` directory.
     - Force publishes or force schedules
 
 
-3. **govuk.WhitehallPublishingCollections**
+6. **govuk.WhitehallPublishingCollections**
 
     **Requires:** `signonUrl` property. `GATLING_USERNAME` and `GATLING_PASSWORD` environment variables.
 
@@ -235,54 +286,6 @@ while their data files live in the `src/test/resources` directory.
     - Adds search results to collection
     - Tags to taxonomy
     - Force publishes
-
-
-4. **govuk.PublishToPublishingApi**
-
-    **Requires:** `BEARER_TOKEN` environment variables.
-
-    **Note:** The Publishing API is not accessible from the outside, you'll
-    need to set up a proxy into our infrastructure to connect to it from
-    Gatling.
-
-    For example, for staging:
-
-    ```sh
-    $ ssh publishing-api-1.staging -CNL 8443:publishing-api.staging.publishing.service.gov.uk:443
-    ```
-
-    You'll then need to add the line
-    `127.0.0.1 publishing-api.staging.publishing.service.gov.uk` to
-    `/etc/hosts` to make sure the HTTPS server name matches.
-
-    Then you can set your `baseUrl` to
-    `https://publishing-api.staging.publishing.service.gov.uk:8443`.
-
-    Since the load testing is now limited by your SSH proxy, you may want to
-    increase the `ulimit` to a high number such as `ulimit -n 4096`. This means
-    SSH is able to cope with more open sockets.
-
-    Steps:
-
-    - Put content
-    - Patch links
-    - Publish
-
-5. **govuk.BusinessReadinessFinder**
-
-    **Data files:** business-readiness-paths.csv
-
-    **Properties:** `factor` (default: 1), the multiplier to apply to the amount of desired traffic
-
-    For an entry `base_path,hits`, each worker requests `base_path` `ceil(hits * factor / workers)` times, with no delay between requests.  Each worker proceeds through the csv in order.
-
-6. **govuk.DynamicLists**
-
-    **Data files:** get-ready-brexit-check_paths.csv
-
-    **Properties:** `factor` (default: 1), the multiplier to apply to the amount of desired traffic
-
-    For an entry `base_path,hits`, each worker requests `base_path` `ceil(hits * factor / workers)` times, with no delay between requests.  Each worker proceeds through the csv in order.
 
 ## <a name="troubleshooting">5. Troubleshooting</a>
 
