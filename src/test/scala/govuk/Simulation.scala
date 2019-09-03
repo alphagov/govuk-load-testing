@@ -16,6 +16,7 @@ abstract class Simulation extends scenario.Simulation {
   val rateLimitToken = sys.props.get("rateLimitToken")
   val workers = sys.props.getOrElse("workers", "1").toInt
   val ramp = sys.props.getOrElse("ramp", "0").toInt
+  val maxTime = sys.props.getOrElse("maxTime", "3600").toInt
   val bust = sys.props.getOrElse("bust", "false").toBoolean
 
   val cachebuster = Iterator.continually(
@@ -53,5 +54,5 @@ abstract class Simulation extends scenario.Simulation {
   def run(scn: ScenarioBuilder) =
     setUp(
       scn.inject(rampUsers(workers) during (ramp seconds))
-    ).protocols(httpProtocol)
+    ).maxDuration(maxTime seconds).protocols(httpProtocol)
 }
