@@ -11,7 +11,8 @@ Test plans for load testing GOV.UK frontend apps using [Gatling](https://gatling
   2.3 [Rental of an enterprise Gatling Instance via AWS Marketplace](#aws-gatling)
 3. [Configuration Options](#configuration)
 4. [Simulation Plans](#plans)
-5. [Troubleshooting](#troubleshooting)
+5. [Uploading](#uploading)
+6. [Troubleshooting](#troubleshooting)
 
 
 # <a name="terminology">1. Terminology </a>
@@ -287,7 +288,14 @@ while their data files live in the `src/test/resources` directory.
     - Tags to taxonomy
     - Force publishes
 
-## <a name="troubleshooting">5. Troubleshooting</a>
+## <a name="uploading">5. Uploading</a>
+
+See [how to upload results][uploading-results] for more information on how to
+upload results so they are easy to access in the future.
+
+[uploading-results]: https://github.com/alphagov/govuk-load-testing/blob/master/docs/uploading.md
+
+## <a name="troubleshooting">6. Troubleshooting</a>
 
 1. **My requests are being rate limited**
 
