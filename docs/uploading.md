@@ -27,7 +27,7 @@ format (if different parameters are used) then that's fine.
 An example of a good upload path:
 `/dynamic-lists/2019-09-05-80000-workers-600-seconds`
 
-## 1. Get the results off the Gatling machine
+## 2. Get the results off the Gatling machine
 
 After the load test has finished, Gatling will tell you where to find the
 results. Something like this:
@@ -44,7 +44,7 @@ You can use `scp` to copy that onto your own computer ready for uploading:
 $ scp -r 10.12.4.83.staging-aws:/usr/local/bin/gatling/results/dynamiclists-20190906091551610 ~/Downloads
 ```
 
-## 1. Upload Gatling HTML files
+## 3. Upload Gatling HTML files
 
 Once you have a place to upload the results, all you need to do is upload all
 the HTML, CSS and JS files that are part of a Gatling results directory.
@@ -53,7 +53,7 @@ You can do this using the S3 web interface, by clicking the "Upload" button
 once you're in the right directory. You can leave all the upload settings as
 the defaults.
 
-## 1. Test the results can be seen
+## 4. Test the results can be seen
 
 When the upload has finished, it should be possible to view the results by
 going to:
