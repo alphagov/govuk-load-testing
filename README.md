@@ -300,7 +300,7 @@ upload results so they are easy to access in the future.
 
 It may be useful to run multiple concurrent Gatling tests to simulate more load than a single Gatling instance could generate. See [how to combine results from concurrent tests][combining-results].
 
-[combining-results]: https://github.com/alphagov/govuk-load-testing/blob/master/docs/combining_multiple_test_results.md
+[combining-results]: https://github.com/alphagov/govuk-load-testing/blob/master/docs/combining_concurrent_test_results.md
 
 ## <a name="troubleshooting">7. Troubleshooting</a>
 
