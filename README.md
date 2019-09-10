@@ -12,7 +12,8 @@ Test plans for load testing GOV.UK frontend apps using [Gatling](https://gatling
 3. [Configuration Options](#configuration)
 4. [Simulation Plans](#plans)
 5. [Uploading](#uploading)
-6. [Troubleshooting](#troubleshooting)
+6. [Combining concurrent test results](#combining)
+7. [Troubleshooting](#troubleshooting)
 
 
 # <a name="terminology">1. Terminology </a>
@@ -295,7 +296,13 @@ upload results so they are easy to access in the future.
 
 [uploading-results]: https://github.com/alphagov/govuk-load-testing/blob/master/docs/uploading.md
 
-## <a name="troubleshooting">6. Troubleshooting</a>
+## <a name="combining">6. Combining concurrent test results</a>
+
+It may be useful to run multiple concurrent Gatling tests to simulate more load than a single Gatling instance could generate. See [how to combine results from concurrent tests][combining-results].
+
+[combining-results]: https://github.com/alphagov/govuk-load-testing/blob/master/docs/combining_concurrent_test_results.md
+
+## <a name="troubleshooting">7. Troubleshooting</a>
 
 1. **My requests are being rate limited**
 
