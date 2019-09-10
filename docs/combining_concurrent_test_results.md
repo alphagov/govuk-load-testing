@@ -1,4 +1,4 @@
-# Running multiple concurrent tests
+# Combining Concurrent Test Results
 
 To generate extremely high levels of load it may be necessary to run concurrent tests via different machines. If these are both started at the same time with the same parameters, for example with 50,000 workers, the results can then be combined to provide results for a single 100,000 worker test.
 
