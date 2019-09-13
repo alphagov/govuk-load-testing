@@ -16,7 +16,6 @@ import scala.util.Random
  * 3. Publish
  */
 class PublishToPublishingApi extends Simulation {
-
   val lipsum = new LoremIpsum()
   val bearerToken = sys.env.get("BEARER_TOKEN").get
   val bearerTokenHeaderValue = s"Bearer $bearerToken"

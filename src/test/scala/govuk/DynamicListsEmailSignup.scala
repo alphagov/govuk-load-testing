@@ -5,7 +5,6 @@ import io.gatling.http.Predef._
 
 class DynamicListsEmailSignup extends Simulation {
   val factor = sys.props.getOrElse("factor", "1").toFloat
-
   val duration = sys.props.getOrElse("duration", "0").toInt
 
   val paths = csv(dataDir + java.io.File.separatorChar + "get-ready-brexit-check-email-signup_paths.csv").readRecords
