@@ -22,9 +22,9 @@ class DynamicLists extends Simulation {
           }
       }
 
-  val scn_with_duration =
+  val scnWithDuration =
     scenario("DynamicLists")
-      .during(duration, "Soak test"){
+      .during(duration, "Soak test") {
         feed(cachebuster)
         .foreach(paths, "path") {
           exec(flattenMapIntoAttributes("${path}"))
@@ -35,9 +35,5 @@ class DynamicLists extends Simulation {
         }
       }
 
-  if(duration > 0){
-    run(scn_with_duration)
-  } else{
-    run(scn)
-  }
+  if (duration == 0) run(scn) else run(scnWithDuration)
 }
