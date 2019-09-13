@@ -42,7 +42,7 @@ abstract class Simulation extends scenario.Simulation {
 
   def get(path: String, cachebust: String) =
     http(path)
-      .get(path + (if (bust) "?cachebust=" + cachebust else ""))
+      .get(pathWithCachebustIfNeeded(path, cachebust))
       .check(header(HeaderNames.ContentType).saveAs("content-type"))
       .check(
         status.in(200 to 299),
@@ -50,6 +50,15 @@ abstract class Simulation extends scenario.Simulation {
           session("content-type").as[String] contains "text/html"
         })(regex("govuk:rendering-application").count.is(1))
       )
+
+  def pathWithCachebustIfNeeded(path: String, cachebust: String) = {
+    if (bust) {
+      val prefix = if (path.contains("?")) "&" else "?"
+      path + prefix + "cachebust=" + cachebust
+    } else {
+      path
+    }
+  }
 
   def run(scn: ScenarioBuilder) =
     setUp(
