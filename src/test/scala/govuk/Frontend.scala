@@ -5,7 +5,6 @@ import io.gatling.http.Predef._
 
 class Frontend extends Simulation {
   val factor = sys.props.getOrElse("factor", "1").toFloat
-
   val duration = sys.props.getOrElse("duration", "0").toInt
 
   val paths = csv(dataDir + java.io.File.separatorChar + "paths.csv").readRecords
@@ -23,9 +22,9 @@ class Frontend extends Simulation {
           }
       }
 
-  val scn_with_duration =
+  val scnWithDuration =
     scenario("Frontend")
-      .during(duration, "Soak test"){
+      .during(duration, "Soak test") {
         feed(cachebuster)
         .foreach(paths, "path") {
           exec(flattenMapIntoAttributes("${path}"))
@@ -36,9 +35,5 @@ class Frontend extends Simulation {
         }
       }
 
-  if(duration > 0){
-    run(scn_with_duration)
-  } else{
-    run(scn)
-  }
+  if (duration == 0) run(scn) else run(scnWithDuration)
 }
