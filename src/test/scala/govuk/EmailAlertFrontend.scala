@@ -7,28 +7,28 @@ import io.gatling.http.Predef._
  * Email Alert Frontend scenario singleton object.
  *
  * Call 'exec(EmailAlertFrontend.subscribe)' to use in a Gatling scenario.
- * Requires 'emailSubscriptionTopicId', 'frequencyLink', 'subscribeAuthToken'
+ * Requires 'emailAlertFrontendTopicId', 'emailAlertFrontendUrl', 'emailAlertFrontendAuthToken'
  * to be present in the user session.
  */
 object EmailAlertFrontend {
   val subscribe = exec(
     http("Submit frequency")
-      .post("""${frequencyLink}""")
-      .formParam("authenticity_token", """${subscribeAuthToken}""")
-      .formParam("topic_id", """${emailSubscriptionTopicId}""")
+      .post("""${emailAlertFrontendUrl}""")
+      .formParam("authenticity_token", """${emailAlertFrontendAuthToken}""")
+      .formParam("topic_id", """${emailAlertFrontendTopicId}""")
       .formParam("frequency", "immediately")
       .check(
-        css(".checklist-email-signup", "action").saveAs("emailSubscriptionFrequency"),
-        css(".checklist-email-signup input[name=topic_id]", "value").saveAs("emailSubscriptionTopicId"),
-        css(".checklist-email-signup input[name=authenticity_token]", "value").saveAs("subscribeAuthToken")
+        css(".checklist-email-signup", "action").saveAs("emailAlertFrontendEmailUrl"),
+        css(".checklist-email-signup input[name=topic_id]", "value").saveAs("emailAlertFrontendTopicId"),
+        css(".checklist-email-signup input[name=authenticity_token]", "value").saveAs("emailAlertFrontendAuthToken")
       )
       .check(status.is(200))
     )
     .exec(
       http("Submit email address")
-        .post("""${emailSubscriptionFrequency}""")
-        .formParam("authenticity_token", """${subscribeAuthToken}""")
-        .formParam("topic_id", """${emailSubscriptionTopicId}""")
+        .post("""${emailAlertFrontendEmailUrl}""")
+        .formParam("authenticity_token", """${emailAlertFrontendAuthToken}""")
+        .formParam("topic_id", """${emailAlertFrontendTopicId}""")
         .formParam("frequency", "immediately")
         .formParam("address", "alice@example.com")
         .check(

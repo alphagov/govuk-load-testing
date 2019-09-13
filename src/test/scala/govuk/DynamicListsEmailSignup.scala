@@ -14,11 +14,11 @@ class DynamicListsEmailSignup extends Simulation {
   val subscribe = exec(
     http("Subscribe")
       .post("""${subscribeFormAction}""")
-      .formParam("authenticity_token", """${subscribeAuthToken}""")
+      .formParam("authenticity_token", """${emailAlertFrontendAuthToken}""")
       .check(
-        css(".checklist-email-signup", "action").saveAs("frequencyLink"),
-        css(".checklist-email-signup input[name=topic_id]", "value").saveAs("emailSubscriptionTopicId"),
-        css(".checklist-email-signup input[name=authenticity_token]", "value").saveAs("subscribeAuthToken")
+        css(".checklist-email-signup", "action").saveAs("emailAlertFrontendUrl"),
+        css(".checklist-email-signup input[name=topic_id]", "value").saveAs("emailAlertFrontendTopicId"),
+        css(".checklist-email-signup input[name=authenticity_token]", "value").saveAs("emailAlertFrontendAuthToken")
       )
       .check(status.is(200))
   )
@@ -33,7 +33,7 @@ class DynamicListsEmailSignup extends Simulation {
               get("${base_path}", "${cachebust}-${hit}")
                 .check(
                   css("#checklist-email-signup", "action").saveAs("subscribeFormAction"),
-                  css("#checklist-email-signup input[name=authenticity_token]", "value").saveAs("subscribeAuthToken")
+                  css("#checklist-email-signup input[name=authenticity_token]", "value").saveAs("emailAlertFrontendAuthToken")
                 )
                 .check(status.is(200))
             )
@@ -53,7 +53,7 @@ class DynamicListsEmailSignup extends Simulation {
                 get("${base_path}", "${cachebust}-${hit}")
                   .check(
                     css("#checklist-email-signup", "action").saveAs("subscribeFormAction"),
-                    css("#checklist-email-signup input[name=authenticity_token]", "value").saveAs("subscribeAuthToken")
+                    css("#checklist-email-signup input[name=authenticity_token]", "value").saveAs("emailAlertFrontendAuthToken")
                   )
                   .check(status.is(200))
               )
