@@ -43,7 +43,7 @@ class DynamicListsEmailSignup extends Simulation {
                   .formParam("topic_id", """${emailAlertFrontendTopicId}""")
                   .formParam("frequency", "immediately")
                   .check(
-                    css(".checklist-email-signup", "action").saveAs("emailSubscriptionFrequency"),
+                    css(".checklist-email-signup", "action").saveAs("emailAlertFrontendEmailAddressUrl"),
                     css(".checklist-email-signup input[name=topic_id]", "value").saveAs("emailAlertFrontendTopicId"),
                     css(".checklist-email-signup input[name=authenticity_token]", "value").saveAs("emailAlertFrontendAuthToken")
                   )
@@ -51,7 +51,7 @@ class DynamicListsEmailSignup extends Simulation {
               )
               .exec(
                 http("POST Email address")
-                  .post("""${emailSubscriptionFrequency}""")
+                  .post("""${emailAlertFrontendEmailAddressUrl}""")
                   .formParam("authenticity_token", """${emailAlertFrontendAuthToken}""")
                   .formParam("topic_id", """${emailAlertFrontendTopicId}""")
                   .formParam("frequency", "immediately")
@@ -97,7 +97,7 @@ class DynamicListsEmailSignup extends Simulation {
                   .formParam("topic_id", """${emailAlertFrontendTopicId}""")
                   .formParam("frequency", "immediately")
                   .check(
-                    css(".checklist-email-signup", "action").saveAs("emailSubscriptionFrequency"),
+                    css(".checklist-email-signup", "action").saveAs("emailAlertFrontendEmailAddressUrl"),
                     css(".checklist-email-signup input[name=topic_id]", "value").saveAs("emailAlertFrontendTopicId"),
                     css(".checklist-email-signup input[name=authenticity_token]", "value").saveAs("emailAlertFrontendAuthToken")
                   )
@@ -105,7 +105,7 @@ class DynamicListsEmailSignup extends Simulation {
               )
               .exec(
                 http("POST Email address")
-                  .post("""${emailSubscriptionFrequency}""")
+                  .post("""${emailAlertFrontendEmailAddressUrl}""")
                   .formParam("authenticity_token", """${emailAlertFrontendAuthToken}""")
                   .formParam("topic_id", """${emailAlertFrontendTopicId}""")
                   .formParam("frequency", "immediately")
