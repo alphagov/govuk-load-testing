@@ -21,39 +21,39 @@ class DynamicListsEmailSignup extends Simulation {
               get("${base_path}", "${cachebust}-${hit}")
                 .check(
                   css("#checklist-email-signup", "action").saveAs("subscribeFormAction"),
-                  css("#checklist-email-signup input[name=authenticity_token]", "value").saveAs("subscribeAuthToken")
+                  css("#checklist-email-signup input[name=authenticity_token]", "value").saveAs("emailAlertFrontendAuthToken")
                 )
                 .check(status.is(200))
             )
               .exec(
                 http("POST Subscribe")
                   .post("""${subscribeFormAction}""")
-                  .formParam("authenticity_token", """${subscribeAuthToken}""")
+                  .formParam("authenticity_token", """${emailAlertFrontendAuthToken}""")
                   .check(
-                    css(".checklist-email-signup", "action").saveAs("frequencyLink"),
-                    css(".checklist-email-signup input[name=topic_id]", "value").saveAs("emailSubscriptionFrequencyTopicId"),
-                    css(".checklist-email-signup input[name=authenticity_token]", "value").saveAs("subscribeAuthToken")
+                    css(".checklist-email-signup", "action").saveAs("emailAlertFrontendUrl"),
+                    css(".checklist-email-signup input[name=topic_id]", "value").saveAs("emailAlertFrontendTopicId"),
+                    css(".checklist-email-signup input[name=authenticity_token]", "value").saveAs("emailAlertFrontendAuthToken")
                   )
                   .check(status.is(200))
               )
               .exec(
                 http("POST Frequency")
-                  .post("""${frequencyLink}""")
-                  .formParam("authenticity_token", """${subscribeAuthToken}""")
-                  .formParam("topic_id", """${emailSubscriptionFrequencyTopicId}""")
+                  .post("""${emailAlertFrontendUrl}""")
+                  .formParam("authenticity_token", """${emailAlertFrontendAuthToken}""")
+                  .formParam("topic_id", """${emailAlertFrontendTopicId}""")
                   .formParam("frequency", "immediately")
                   .check(
-                    css(".checklist-email-signup", "action").saveAs("emailSubscriptionFrequency"),
-                    css(".checklist-email-signup input[name=topic_id]", "value").saveAs("emailSubscriptionFrequencyTopicId"),
-                    css(".checklist-email-signup input[name=authenticity_token]", "value").saveAs("subscribeAuthToken")
+                    css(".checklist-email-signup", "action").saveAs("emailAlertFrontendEmailAddressUrl"),
+                    css(".checklist-email-signup input[name=topic_id]", "value").saveAs("emailAlertFrontendTopicId"),
+                    css(".checklist-email-signup input[name=authenticity_token]", "value").saveAs("emailAlertFrontendAuthToken")
                   )
                   .check(status.is(200))
               )
               .exec(
                 http("POST Email address")
-                  .post("""${emailSubscriptionFrequency}""")
-                  .formParam("authenticity_token", """${subscribeAuthToken}""")
-                  .formParam("topic_id", """${emailSubscriptionFrequencyTopicId}""")
+                  .post("""${emailAlertFrontendEmailAddressUrl}""")
+                  .formParam("authenticity_token", """${emailAlertFrontendAuthToken}""")
+                  .formParam("topic_id", """${emailAlertFrontendTopicId}""")
                   .formParam("frequency", "immediately")
                   .formParam("address", "alice@example.com")
                   .check(
@@ -75,39 +75,39 @@ class DynamicListsEmailSignup extends Simulation {
                 get("${base_path}", "${cachebust}-${hit}")
                   .check(
                     css("#checklist-email-signup", "action").saveAs("subscribeFormAction"),
-                    css("#checklist-email-signup input[name=authenticity_token]", "value").saveAs("subscribeAuthToken")
+                    css("#checklist-email-signup input[name=authenticity_token]", "value").saveAs("emailAlertFrontendAuthToken")
                   )
                   .check(status.is(200))
               )
               .exec(
                 http("POST Subscribe")
                   .post("""${subscribeFormAction}""")
-                  .formParam("authenticity_token", """${subscribeAuthToken}""")
+                  .formParam("authenticity_token", """${emailAlertFrontendAuthToken}""")
                   .check(
-                    css(".checklist-email-signup", "action").saveAs("frequencyLink"),
-                    css(".checklist-email-signup input[name=topic_id]", "value").saveAs("emailSubscriptionFrequencyTopicId"),
-                    css(".checklist-email-signup input[name=authenticity_token]", "value").saveAs("subscribeAuthToken")
+                    css(".checklist-email-signup", "action").saveAs("emailAlertFrontendUrl"),
+                    css(".checklist-email-signup input[name=topic_id]", "value").saveAs("emailAlertFrontendTopicId"),
+                    css(".checklist-email-signup input[name=authenticity_token]", "value").saveAs("emailAlertFrontendAuthToken")
                   )
                   .check(status.is(200))
               )
               .exec(
                 http("POST Frequency")
-                  .post("""${frequencyLink}""")
-                  .formParam("authenticity_token", """${subscribeAuthToken}""")
-                  .formParam("topic_id", """${emailSubscriptionFrequencyTopicId}""")
+                  .post("""${emailAlertFrontendUrl}""")
+                  .formParam("authenticity_token", """${emailAlertFrontendAuthToken}""")
+                  .formParam("topic_id", """${emailAlertFrontendTopicId}""")
                   .formParam("frequency", "immediately")
                   .check(
-                    css(".checklist-email-signup", "action").saveAs("emailSubscriptionFrequency"),
-                    css(".checklist-email-signup input[name=topic_id]", "value").saveAs("emailSubscriptionFrequencyTopicId"),
-                    css(".checklist-email-signup input[name=authenticity_token]", "value").saveAs("subscribeAuthToken")
+                    css(".checklist-email-signup", "action").saveAs("emailAlertFrontendEmailAddressUrl"),
+                    css(".checklist-email-signup input[name=topic_id]", "value").saveAs("emailAlertFrontendTopicId"),
+                    css(".checklist-email-signup input[name=authenticity_token]", "value").saveAs("emailAlertFrontendAuthToken")
                   )
                   .check(status.is(200))
               )
               .exec(
                 http("POST Email address")
-                  .post("""${emailSubscriptionFrequency}""")
-                  .formParam("authenticity_token", """${subscribeAuthToken}""")
-                  .formParam("topic_id", """${emailSubscriptionFrequencyTopicId}""")
+                  .post("""${emailAlertFrontendEmailAddressUrl}""")
+                  .formParam("authenticity_token", """${emailAlertFrontendAuthToken}""")
+                  .formParam("topic_id", """${emailAlertFrontendTopicId}""")
                   .formParam("frequency", "immediately")
                   .formParam("address", "alice@example.com")
                   .check(
