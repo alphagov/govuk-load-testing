@@ -35,6 +35,7 @@ abstract class Simulation extends scenario.Simulation {
     .headers(extraHeaders)
     .userAgentHeader("GOV.UK Gatling")
     .disableCaching
+    .warmUp(baseUrl)
 
   if (!username.isEmpty && !password.isEmpty) {
     httpProtocol = httpProtocol.basicAuth(username, password)
@@ -62,6 +63,11 @@ abstract class Simulation extends scenario.Simulation {
 
   def run(scn: ScenarioBuilder) =
     setUp(
-      scn.inject(rampUsers(workers) during (ramp seconds))
+      scn.inject(
+        nothingFor(5 seconds),
+        atOnceUsers(200),
+        rampUsersPerSec(100) to workers during (ramp seconds),
+        constantUsersPerSec(workers) during (60 seconds)
+      )
     ).maxDuration(maxTime seconds).protocols(httpProtocol)
 }
