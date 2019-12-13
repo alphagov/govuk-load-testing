@@ -18,8 +18,7 @@ Test plans for load testing GOV.UK frontend apps using [Gatling](https://gatling
 
 # <a name="terminology">1. Terminology </a>
 
-1. `$GATLING_HOME`: In this README, `$GATLING_HOME` is the directory where Gatling is installed to.
-    For example, if you download version 3.0.0-RC4 of the Gatling bundle zip and extract it in your `~/Downloads` folder, `$GATLING_HOME` is `~/Downloads/gatling-charts-highcharts-bundle-3.0.0-RC4`
+1. `$GATLING_HOME` is the directory where Gatling is installed to. For example, if you download version 3.0.0-RC4 of the Gatling bundle zip and extract it in your `~/Downloads` folder, `$GATLING_HOME` is `~/Downloads/gatling-charts-highcharts-bundle-3.0.0-RC4`
 
 2. simulation plan: a set of scenarios, where each scenario represents how a user will interact with the website.
 
@@ -34,54 +33,39 @@ There are 3 main methods to install and run Gatling:
 
 ### Provision GOV.UK Gatling
 
-The provisioning steps are:
-1. provisioning a GOV.UK Gatling by applying the project in `app-gatling` of
-[govuk-aws](https://github.com/alphagov/govuk-aws) in the
-environment that you want to do the load testing. You should use the `govuk` stack. Further information can be found [here](https://github.com/alphagov/govuk-aws) but in general you should run:
-```
-tools/build-terraform-project.sh -c apply -p app-gatling -d ../govuk-aws-data/data -e <environment> -s govuk
-```
-where `<environment>` is the GOV.UK environment you want to test in, e.g. `integration`
+To provision a Gatling instance, [deploy
+Terraform](https://docs.publishing.service.gov.uk/manual/deploying-terraform.html#deploying-with-deploy-rb)
+for `app-gatling` in the `govuk` stack in the required environment.
 
 ### Running a Plan
 
-You can run a Gatling plan by:
-1. sshing into the Gatling instance via the jumpbox of the environment and finding
-the gatling instance by running `govuk_node_list -c gatling`
-1. once you are in the Gatling instance, change user the `gatling` user by running
+1. SSH into the Gatling instance
+2. Switch to the `gatling` user and into the right directory
+
    ```
-   sudo su
-   su gatling
-   cd ~
+   sudo su - gatling
+   cd ~/govuk-load-testing
    ```
-1. go to the `govuk-load-testing` directory that has already been created:
-   ```
-   cd govuk-load-testing
-   ```
-1. export the Gatling environment variables suitable, further information in
-[configuration](#configuration).
-1. run Gatling:
-   ```
-     $ /usr/local/bin/gatling/bin/gatling.sh -sf src/test/scala
-   ```
-1. selecting the simulation plan number that you wish to run.
+
+3. Export the [required environment variables](#configuration) for your load test
+4. Run Gatling with `/usr/local/bin/gatling/bin/gatling.sh -sf src/test/scala`
+5. Learn [what each simualtion plan tests](#plans) and choose one:
+
     ```
     Choose a simulation number:
         [0] govuk.Frontend
         [1] govuk.WhitehallPublishing
         [2] govuk.WhitehallPublishingCollections
     ```
-    A description of relevant simulation plans available for the gov.uk website
-    is available [here](#plans)
-1. Once Gatling has finished, you can browse from the office network to the GOV.UK Gatling webpage with URL: `https://gatling.<environment>.govuk.digital`
-where `environment` is the GOV.UK environment that you are provisioned to.
-This website will provide an index of all Gatling runs made on that GOV.UK Gatling since provisioning and you can view the results of a particular run.
 
-### De-provision GOV.UK Gatling
-You should de-provisioning Gatling after you have finished for the day to save money. In general, you would run:
-```
-tools/build-terraform-project.sh -c destroy -p app-gatling -d ../govuk-aws-data/data -e <environment> -s govuk
-```
+6. Now, the Gatling web UI is available at
+   `https://gatling.<environment>.govuk.digital`. There's an index of
+   all Gatling runs made since provisioning, and you can see the
+   results of a particular run.
+
+### When You've Finished
+
+Manually "stop" the Gatling instance in the AWS Console UI.
 
 ## <a name="virtual-machine">2.2 Virtual Machine</a>
 
