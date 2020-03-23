@@ -57,6 +57,12 @@ You can use `scp` to copy that onto your own computer ready for uploading:
 $ scp -r 10.12.4.83.staging-aws:/usr/local/bin/gatling/results/dynamiclists-20190906091551610 ~/Downloads
 ```
 
+To `scp` via the jumpbox:
+
+```ssh
+$ scp -r -oProxyJump=jumpbox.staging.govuk.digital 10.12.4.83:/usr/local/bin/gatling/results/dynamiclists-20190906091551610 ~/Downloads
+```
+
 ## 4. Upload Gatling HTML files
 
 Once you have a place to upload the results, all you need to do is upload all
