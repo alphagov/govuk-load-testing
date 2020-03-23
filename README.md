@@ -284,6 +284,17 @@ while their data files live in the `src/test/resources` directory.
     - Tags to taxonomy
     - Force publishes
 
+8. **govuk.Search**
+
+    **Data files:** search.csv
+
+    **Optional:** `factor` (default: 1), the multiplier to apply to the amount of desired traffic
+    For an entry `base_path,hits`, each worker requests `base_path` `ceil(hits * factor / workers)` times, with no delay between requests.  Each worker proceeds through the csv in order.
+
+    **Optional:** `duration` (default: 0), if set the test will last for the given number of seconds. Any workers that have not started or completed will be halted at this point. Conversely, any workers that finish ahead of this point will be restarted to ensure the test lasts for the given time.
+
+    If you are having difficulty running the entire test plan on a single machine within your desired duration, try splitting up the data file and running multiple instances of Gatling simultaneously on different machines.
+
 ## <a name="uploading">5. Uploading</a>
 
 See [how to upload results][uploading-results] for more information on how to
