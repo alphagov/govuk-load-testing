@@ -3,7 +3,7 @@ package govuk
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
-class Frontend extends Simulation {
+class Search extends Simulation {
   val factor = sys.props.getOrElse("factor", "1").toFloat
   val duration = sys.props.getOrElse("duration", "0").toInt
 
