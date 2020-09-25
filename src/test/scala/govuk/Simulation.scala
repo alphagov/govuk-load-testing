@@ -64,4 +64,9 @@ abstract class Simulation extends scenario.Simulation {
     setUp(
       scn.inject(rampUsers(workers) during (ramp seconds))
     ).maxDuration(maxTime seconds).protocols(httpProtocol)
+
+  def runConstant(scn: ScenarioBuilder) =
+    setUp(
+      scn.inject(constantUsersPerSec(workers) during (ramp seconds) randomized)
+    ).maxDuration(maxTime seconds).protocols(httpProtocol)
 }
