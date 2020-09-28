@@ -6,7 +6,7 @@ import io.gatling.http.Predef._
 object LandingPage {
   val go = exec(
     http("Landing page")
-        .get("/coronavirus-find-support/s")
+        .get("/find-coronavirus-support/s")
         .check(status.is(200)))
     .pause(1)
 }
@@ -14,7 +14,7 @@ object LandingPage {
 object NeedHelpWith {
   val go = exec(
     http("Question: need-help-with")
-        .get("/coronavirus-find-support/s/need-help-with/next")
+        .get("/find-coronavirus-support/s/need-help-with/next")
         .queryParam("response[]", "none")
         .queryParam("next", "1")
         .check(status.is(200)))
@@ -24,7 +24,7 @@ object NeedHelpWith {
 object LeaveTheSite {
   val go = exec(
     http("Leave the site")
-      .get("/coronavirus-find-support/s/destroy_session")
+      .get("/find-coronavirus-support/s/destroy_session")
       .queryParam("ext_r", "true")
       .check(status.is(200)))
 }
@@ -38,7 +38,7 @@ class SmartAnswers extends Simulation {
     .foreach(nodes, "node") {
       exec(flattenMapIntoAttributes("${node}"))
       .exec(http("Question: ${name}")
-        .get("/coronavirus-find-support/s/${name}/next")
+        .get("/find-coronavirus-support/s/${name}/next")
         .queryParam("response", "${response}")
         .queryParam("next", "1"))
       .pause(1)
