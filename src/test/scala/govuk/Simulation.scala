@@ -54,7 +54,7 @@ abstract class Simulation extends scenario.Simulation {
   def pathWithCachebustIfNeeded(path: String, cachebust: String) = {
     if (bust) {
       val prefix = if (path.contains("?")) "&" else "?"
-      path + prefix + "cachebust=" + cachebust
+      path + prefix + "gatling-cachebust=" + cachebust
     } else {
       path
     }
