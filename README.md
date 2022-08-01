@@ -35,7 +35,7 @@ There are 3 main methods to install and run Gatling:
 
 To provision a Gatling instance, [deploy
 Terraform](https://docs.publishing.service.gov.uk/manual/deploying-terraform.html#deploying-with-deploy-rb)
-for `app-gatling` in the `govuk` stack in the required environment.
+for `app-gatling` in the `blue` stack in the required environment.
 
 ### Running a Plan
 
