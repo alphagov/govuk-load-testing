@@ -351,3 +351,7 @@ It may be useful to run multiple concurrent Gatling tests to simulate more load 
       session
     })
     ```
+
+## Licence
+
+[MIT License](LICENCE)
